@@ -1,0 +1,4 @@
+firefoxplugin
+=============
+
+VoIPGRID Firefox Plugin
