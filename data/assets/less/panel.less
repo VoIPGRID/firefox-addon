@@ -1,0 +1,60 @@
+@import "normalize";
+@import "mixins";
+@import "fontawesome/font-awesome";
+
+@lightText: #78788c;
+@darkText: #3c3c50;
+@greyText: #5c5c5c;
+@brand: #0083cb;
+
+html {
+    background: white;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+html.scrollbarhide {
+    overflow-y: hidden;
+}
+
+body, html {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    background: white;
+    color: @darkText;
+    font: 13px/1.7em 'Open Sans';
+}
+
+div.account {
+    padding: 10px;
+    i {
+        display: block;
+        float: left;
+        font-size: 21px;
+
+        margin-right: 9px;
+        margin-left: 2px;
+    }
+}
+
+// include parts of the panel
+@import "menu";
+@import "widget";
+
+footer {
+    
+    font-size: 12px;
+
+    height: 35px;
+    line-height: 35px;
+    padding: 0 10px;
+    color: @lightText;
+    background: url('../img/logo.png') no-repeat center right;
+
+    // border at the top
+    border-top: 1px solid #d5d5d5;
+    margin-top: -1px;
+
+}

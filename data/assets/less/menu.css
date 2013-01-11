@@ -1,0 +1,44 @@
+ul.menu {
+  padding: 0;
+  margin: 0 0 10px 10px;
+  height: 60px;
+  list-style: none;
+  overflow: hidden;
+}
+ul.menu li {
+  display: block;
+  text-align: center;
+  background: #f3f3f3;
+  height: 60px;
+  width: 78px;
+  float: left;
+  font-size: 12px;
+  font-weight: bold;
+  margin-right: 8px;
+}
+ul.menu li i {
+  display: block;
+  text-align: center;
+  color: rgba(213, 213, 213, 0.8);
+  text-shadow: 0px 1px 1px #F3F3F3, 0 0 0 #666, 0px 1px 1px #F3F3F3;
+  font-size: 18px;
+  height: 34px;
+  line-height: 48px;
+  width: inherit;
+}
+ul.menu li i:before {
+  font-size: 32px;
+}
+.icon-inset {
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+}
+.icon-inset.icon-large {
+  height: 40px;
+  width: 40px;
+  line-height: 40px;
+}
+.icon-inset.icon-large:before {
+  font-size: 40px;
+}

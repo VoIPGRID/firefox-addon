@@ -1,0 +1,18 @@
+{
+    "preferences": [
+        {
+            "name": "platform_url",
+            "title": "Platform URL",
+            "type": "string",
+            "description": "default: https://client.voys.nl/",
+            "value": "https://client.voys.nl/"
+        }
+    ],
+    "name": "voipgrid",
+    "license": "MPL 1.1/GPL 2.0/LGPL 2.1",
+    "author": "VoIPGRID",
+    "version": "1.0",
+    "fullName": "VoIPGRID",
+    "id": "voipgrid",
+    "description": "Firefox plugin voor klik&bel, statusupdate en wachtrij monitoring"
+}
