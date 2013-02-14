@@ -25,7 +25,7 @@ $(function() {
     });
 
     // widget select a li
-    $('.widget.wachtrijen').on('click', 'li', function() {
+    $('.widget.queues').on('click', 'li', function() {
         if($(this).attr('title') != undefined) {
             $(this).siblings().removeClass('selected');
             if($(this).attr('class') == 'selected') {
@@ -45,7 +45,7 @@ $(function() {
     }).trigger('DOMSubtreeModified');
 
     // handle statusupdate inputs
-    $('input[name=bereikbaar]').change(function() {
+    $('input[name=availability]').change(function() {
         if($(this).val() == 'yes') {
             $('#statusupdate').removeAttr('disabled');
             self.port.emit('setuserdestination', $('#statusupdate option:selected').val());

@@ -10,7 +10,7 @@
 <body>
     <div class="account">
         <form id="form"></form>
-        <i class="icon-user"></i> <span id="head">Uitgelogd</span>
+        <i class="icon-user"></i> <span id="head">Uitgelogd</span> <!-- 'Logged out' -->
         <i class="icon-remove-sign" id="close" style="float:right;cursor:pointer;"></i>
     </div>
 
@@ -30,29 +30,29 @@
             </li>
         </ul>
     
-        <div class="widget bereikbaarheid" data-opened="false">
+        <div class="widget availability" data-opened="false">
             <div class="widget-header">
-                <h3><i class="icon-phone-sign"></i> Bereikbaarheid</h3>
+                <h3><i class="icon-phone-sign"></i> Bereikbaarheid</h3> <!-- 'Availability' -->
             </div>
             <div class="widget-content">
                 <form>
-                    <strong>Ben je bereikbaar?</strong>
+                    <strong>Ben je bereikbaar?</strong> <!-- 'Are you available?' -->
                     <label>
-                        <input type="radio" name="bereikbaar" id="yes" value="yes" checked="checked" /> Ja 
+                        <input type="radio" name="availability" id="yes" value="yes" checked="checked" /> Ja 
                     </label>
                     <label>
-                        <input type="radio" name="bereikbaar" id="no" value="no" /> Nee 
+                        <input type="radio" name="availability" id="no" value="no" /> Nee 
                     </label>
                     <select id="statusupdate">
-                        <option>Je hebt momenteel geen bestemmingen.</option>
+                        <option>Je hebt momenteel geen bestemmingen.</option> <!-- 'You have no destinations at the moment.' -->
                     </select>
                 </form>
             </div>
         </div>
     
-        <div class="widget wachtrijen" data-opened="false">
+        <div class="widget queues" data-opened="false">
             <div class="widget-header">
-                <h3><i class="icon-time"></i> Wachtrijen</h3>
+                <h3><i class="icon-time"></i> Wachtrijen</h3> <!-- 'Queues' -->
             </div>
             <div class="widget-content" id="queue">
                 <ul>
@@ -60,13 +60,6 @@
             </div>        
         </div>
     
-        <!--<div class="widget" data-opened="false">
-            <div class="widget-header">
-                <h3><i class="icon-link"></i> Klik en bel</h3>           
-            </div>
-            <div class="widget-content">
-            </div>        
-        </div>-->
     </div>
     <!--<footer>
         versie 1.0
