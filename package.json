@@ -4,8 +4,8 @@
             "name": "platform_url",
             "title": "Platform URL",
             "type": "string",
-            "description": "default: https://client.voys.nl/",
-            "value": "https://client.voys.nl/"
+            "description": "default: https://partner.voipgrid.nl/",
+            "value": "https://partner.voipgrid.nl/"
         }
     ],
     "name": "voipgrid",
