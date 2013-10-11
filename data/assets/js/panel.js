@@ -41,7 +41,15 @@ $(function() {
     
     // detect changes in html and resize the plugin 
     $('body').on('DOMSubtreeModified', function() {
-        self.port.emit('resize', { height: $(this).outerHeight() });
+        var oHeight = $(this).outerHeight();
+
+        if(oHeight  != null ) {
+
+            self.port.emit('resize', { height: oHeight });
+
+            // dump('DOMSubtreeModified resize emit, height: ' + oHeight + '\n');
+        };
+
     }).trigger('DOMSubtreeModified');
 
     // handle statusupdate inputs
@@ -80,7 +88,13 @@ $(function() {
 
     // always resize the panel properly when shown
     self.port.on('resizeonshow', function() {
-        self.port.emit('resize', { height: $('body').outerHeight() });
+        var oHeight = $('body').outerHeight()
+
+        if(oHeight != null) {
+            self.port.emit('resize', { height: oHeight });
+
+            dump('resizeonshow resize emit, height: ' + oHeight + '\n');
+        }
     });
 
     // hide or display the login form

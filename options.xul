@@ -1,0 +1,4 @@
+<?xml version="1.0" ?>
+<vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <setting data-jetpack-id="voipgrid@jetpack" pref="extensions.voipgrid@jetpack.platform_url" pref-name="platform_url" title="Platform URL" type="string">default: https://partner.voipgrid.nl/</setting>
+</vbox>
