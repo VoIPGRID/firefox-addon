@@ -1,9 +1,11 @@
 self.port.on('updatenumber', function(number) {
-    $('#number').html(number);
+    $('#number').text(number);
 });
+
 self.port.on('updatestatus', function(status) {
-    $('#status').html(status);
+    $('#status').text(status);
 });
+
 // handle button clicks
 window.addEventListener('click', function(event) {
     if(event.target.id == 'close') {

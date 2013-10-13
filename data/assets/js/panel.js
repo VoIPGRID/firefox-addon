@@ -107,22 +107,23 @@ $(function() {
             $('#body').attr('style', 'display:block');
             $('#close').attr('style', 'float:right;cursor:pointer;display:block');
         }
-        $('#form').html(html);
+
+        $('#form').empty().append(html);
     });
 
     // update the heading which displays user info
-    self.port.on('updatehead', function(html) {
-        $('#head').html(html);
+    self.port.on('updatehead', function(text) {
+        $('#head').text(text);
     });
 
     // update the list of queue callgroups
     self.port.on('updatelist', function(html) {
-        $('#queue').html(html);
+        $('#queue').empty().append(html);
     });
 
     // update the queue sizes in the list of queue callgroups
     self.port.on('updatequeuesize', function(size, id) {
-        $('#size' + id).html(size);
+        $('#size' + id).text(size);
     });
 
     // set 'no' as selected radio input and disable statusupdate radio inputs
@@ -145,6 +146,6 @@ $(function() {
 
     // update the select element with userdestinations
     self.port.on('updatestatus', function(html) {
-        $('#statusupdate').html(html);
+        $('#statusupdate').empty().append(html);
     });
 });
