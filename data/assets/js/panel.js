@@ -98,17 +98,62 @@ $(function() {
     });
 
     // hide or display the login form
-    self.port.on('updateform', function(html) {
-        if(html) {
-            $('#body').attr('style', 'display:none');
-            $('#close').attr('style', 'float:right;cursor:pointer;display:none');
-        }
-        else {
-            $('#body').attr('style', 'display:block');
-            $('#close').attr('style', 'float:right;cursor:pointer;display:block');
-        }
+    self.port.on('updateform', function(type) {
+        var elements = "";
 
-        $('#form').empty().append(html);
+        $('#form').empty();
+
+        switch (type){
+            case 'clear':{
+                $('#body').show();
+                $('#close').show();
+                break;
+            }
+            case 'login':{
+
+                $('#body').hide();
+                $('#close').hide();
+
+                var fildSet = $('<fieldset />');
+                var table = $('<table />');
+
+                var login = $('<input>');
+                login.attr('id', 'username');
+                login.attr('type', 'text');
+
+                var password = $('<input>');
+                password.attr('id', 'password');
+                password.attr('type', 'password');
+
+                table
+                    .append($("<tr />")
+                        .append($('<td>', { text: 'e-mailadres'}))
+                        .append($('<td>')
+                            .append(login)
+                        ))
+                    .append($("<tr />")
+                        .append($('<td>', { text: 'wachtwoord'}))
+                        .append($('<td>')
+                            .append(password)
+                        ));
+
+                fildSet.append(table);
+
+                var ul = $('<ul>', {'class': 'menu'});
+                var li = $('<li>');
+                var i = $('<i>', {'class': 'icon-signin'});
+
+                li.attr('data-link', 'login');
+                i.attr('id', 'login');
+
+                ul.append(li.append(i).append('Inloggen'));
+
+                $('#form').append(fildSet)
+                    .append('<br />')
+                    .append(ul);  
+                break;
+            }
+        }
     });
 
     // update the heading which displays user info
@@ -117,8 +162,53 @@ $(function() {
     });
 
     // update the list of queue callgroups
-    self.port.on('updatelist', function(html) {
-        $('#queue').empty().append(html);
+    self.port.on('updatelist', function(json) {
+        
+        if(window.lastQueuesJson !=  json){
+            window.lastQueuesJson = json;
+
+            $('#queue').empty();
+
+            switch (json.type){
+                case 'clear':{
+                    break;
+                }
+                case 'queues':{
+                    var ul = $('<ul>');
+
+                    if(json.queues.length == 0){
+                        ul.append($('<li>', {text: 'Je hebt momenteel geen wachtrijen.'}))
+                    }else{
+                        for (var i in json.queues){
+                            var que = json.queues[i];
+
+                            var item = $('<li>');
+
+                            if(que['id'] == json.primary){
+                                item.attr('class', 'selected');
+                            }
+
+                            item.attr('title', que['id']);
+
+                            var indicator = $('<span>', {'class': 'indicator', text: '?'});
+                            indicator.attr('id', 'size' + que['id']);
+                            indicator.attr('title', que['id']);
+
+                            item.append(indicator).append(que['description']);
+
+                            var code = $('<span>', {'class': 'code', text: '(' + que['internal_number'] + ')'});
+
+                            item.append(code);
+                            ul.append(item);
+                        }
+                    }
+
+                    $('#queue').append(ul);
+
+                    break;
+                }
+            }
+        }
     });
 
     // update the queue sizes in the list of queue callgroups
@@ -145,7 +235,48 @@ $(function() {
     });
 
     // update the select element with userdestinations
-    self.port.on('updatestatus', function(html) {
-        $('#statusupdate').empty().append(html);
+    self.port.on('updatestatus', function(json) {
+
+        var elem = $('#statusupdate');
+        elem.empty();
+
+        var isCompleteFormat = json.fixedDestanations != null 
+                && json.phoneAccounts != null;
+
+        if (!(isCompleteFormat) && json.fixedDestanations.length == 0 && json.phoneAccounts.length == 0) {
+            elem.append($('<option>', {text: 'Je hebt momenteel geen bestemmingen.'}));
+        }else {
+
+            for (var i in json.fixedDestanations) {
+                f = json.fixedDestanations[i];
+                
+                var option = $('<option>', {text: f['phonenumber'] + '/' + f['description']});
+
+                if (f['id'] == json.selectedFixed) {
+                    option.attr('selected', 'selected');
+                }
+
+                option.attr('id', 'fixed-' + f['id']);
+                option.attr('value', 'fixed-' + f['id']);
+
+                elem.append(option);
+            }
+
+            for (var i in json.phoneAccounts) {
+                p = json.phoneAccounts[i];
+        
+                var option = $('<option>', {text: p['internal_number'] + '/' + p['description']});
+
+                if (p['id'] == json.selectedPhone) {
+                    option.attr('selected', 'selected');
+                }
+
+                option.attr('id', 'phone-' + p['id']);
+                option.attr('value', 'phone-' + p['id']);
+
+                elem.append(option);
+            }
+        }
     });
+
 });
