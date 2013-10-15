@@ -237,44 +237,48 @@ $(function() {
     // update the select element with userdestinations
     self.port.on('updatestatus', function(json) {
 
-        var elem = $('#statusupdate');
-        elem.empty();
+        if(window.lastPanelJson != json) {
+            window.lastPanelJson = json;
 
-        var isCompleteFormat = json.fixedDestanations != null 
-                && json.phoneAccounts != null;
+            var elem = $('#statusupdate');
+            elem.empty();
 
-        if (!(isCompleteFormat) && json.fixedDestanations.length == 0 && json.phoneAccounts.length == 0) {
-            elem.append($('<option>', {text: 'Je hebt momenteel geen bestemmingen.'}));
-        }else {
+            var isCompleteFormat = json.fixedDestanations != null 
+                    && json.phoneAccounts != null;
 
-            for (var i in json.fixedDestanations) {
-                f = json.fixedDestanations[i];
-                
-                var option = $('<option>', {text: f['phonenumber'] + '/' + f['description']});
+            if (!(isCompleteFormat) && json.fixedDestanations.length == 0 && json.phoneAccounts.length == 0) {
+                elem.append($('<option>', {text: 'Je hebt momenteel geen bestemmingen.'}));
+            }else {
 
-                if (f['id'] == json.selectedFixed) {
-                    option.attr('selected', 'selected');
+                for (var i in json.fixedDestanations) {
+                    f = json.fixedDestanations[i];
+                    
+                    var option = $('<option>', {text: f['phonenumber'] + '/' + f['description']});
+
+                    if (f['id'] == json.selectedFixed) {
+                        option.attr('selected', 'selected');
+                    }
+
+                    option.attr('id', 'fixed-' + f['id']);
+                    option.attr('value', 'fixed-' + f['id']);
+
+                    elem.append(option);
                 }
 
-                option.attr('id', 'fixed-' + f['id']);
-                option.attr('value', 'fixed-' + f['id']);
+                for (var i in json.phoneAccounts) {
+                    p = json.phoneAccounts[i];
+            
+                    var option = $('<option>', {text: p['internal_number'] + '/' + p['description']});
 
-                elem.append(option);
-            }
+                    if (p['id'] == json.selectedPhone) {
+                        option.attr('selected', 'selected');
+                    }
 
-            for (var i in json.phoneAccounts) {
-                p = json.phoneAccounts[i];
-        
-                var option = $('<option>', {text: p['internal_number'] + '/' + p['description']});
+                    option.attr('id', 'phone-' + p['id']);
+                    option.attr('value', 'phone-' + p['id']);
 
-                if (p['id'] == json.selectedPhone) {
-                    option.attr('selected', 'selected');
+                    elem.append(option);
                 }
-
-                option.attr('id', 'phone-' + p['id']);
-                option.attr('value', 'phone-' + p['id']);
-
-                elem.append(option);
             }
         }
     });
