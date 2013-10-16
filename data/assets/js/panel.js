@@ -158,7 +158,7 @@ $(function() {
 
     // update the heading which displays user info
     self.port.on('updatehead', function(text) {
-        $('#head').text(text);
+            $('#head').text(text);
     });
 
     // update the list of queue callgroups
