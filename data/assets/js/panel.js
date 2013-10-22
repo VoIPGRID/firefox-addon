@@ -1,4 +1,7 @@
 $(function() {
+    var lastQueuesJson = null;
+    var lastPanelJson = null;
+
     // close all widgets with data-opened="false"
     $('.widget[data-opened="false"] .widget-content').hide();
 
@@ -44,10 +47,7 @@ $(function() {
         var oHeight = $(this).outerHeight();
 
         if(oHeight  != null ) {
-
             self.port.emit('resize', { height: oHeight });
-
-            // dump('DOMSubtreeModified resize emit, height: ' + oHeight + '\n');
         };
 
     }).trigger('DOMSubtreeModified');
@@ -105,14 +105,14 @@ $(function() {
 
         switch (type){
             case 'clear':{
-                $('#body').show();
-                $('#close').show();
+                $('#body').css('display', 'block');
+                $('#close').css('display', 'block');
                 break;
             }
             case 'login':{
 
-                $('#body').hide();
-                $('#close').hide();
+                $('#body').css('display', 'none');
+                $('#close').css('display', 'none');
 
                 var fildSet = $('<fieldset />');
                 var table = $('<table />');
@@ -164,8 +164,8 @@ $(function() {
     // update the list of queue callgroups
     self.port.on('updatelist', function(json) {
         
-        if(window.lastQueuesJson !=  json){
-            window.lastQueuesJson = json;
+        if(lastQueuesJson != json){
+            lastQueuesJson = json;
 
             $('#queue').empty();
 
@@ -237,8 +237,8 @@ $(function() {
     // update the select element with userdestinations
     self.port.on('updatestatus', function(json) {
 
-        if(window.lastPanelJson != json) {
-            window.lastPanelJson = json;
+        if(lastPanelJson != json) {
+            lastPanelJson = json;
 
             var elem = $('#statusupdate');
             elem.empty();
