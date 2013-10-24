@@ -1,16 +1,16 @@
-	'use strict'
+'use strict'
 
-	const regex = /((\+31|00\s*31|0)\s*(\(0\))*)([-\s\.\(])*(([1-7]([-\s\.\)])*\d)|(8[58]))([-\s\.\)])*\d([-\s\.\)])*\d([-\s\.])*\d([-\s\.])*\d([-\s\.])*\d([-\s\.])*\d([-\s\.])*\d/g;
-	const dateregex = /\d{2}-\d{2}-\d{4} \d{2}/g;
+const regex = /((\+31|00\s*31|0)\s*(\(0\))*)([-\s\.\(])*(([1-7]([-\s\.\)])*\d)|(8[58]))([-\s\.\)])*\d([-\s\.\)])*\d([-\s\.])*\d([-\s\.])*\d([-\s\.])*\d([-\s\.])*\d([-\s\.])*\d/g;
+const dateregex = /\d{2}-\d{2}-\d{4} \d{2}/g;
 
-	const allowedParents = [
-	    "a", "abbr", "acronym", "address", "applet", "b", "bdo", "big", "blockquote", "body", "caption", "center", 
-	    "cite", "code", "dd", "del", "div", "dfn", "dt", "em", "fieldset", "font", "form", "h1", "h2", "h3", "h4", 
-	    "h5", "h6", "i", "iframe", "ins", "kdb", "li", "nobr", "object", "pre", "p", "q", "samp", "small", "span", 
-	    "strike", "s", "strong", "sub", "sup", "td", "th", "tt", "u", "var", "article", "aside", "bdi", "command", 
-	    "datalist", "details", "embed", "figure", "figcaption", "footer", "header", "hgroup", "keygen", "mark", 
-	    "meter", "nav", "outpuFt", "progress", "rp", "ruby", "rt", "section", "summary", "time", "wbr"
-	];
+const allowedParents = [
+    "a", "abbr", "acronym", "address", "applet", "b", "bdo", "big", "blockquote", "body", "caption", "center", 
+    "cite", "code", "dd", "del", "div", "dfn", "dt", "em", "fieldset", "font", "form", "h1", "h2", "h3", "h4", 
+    "h5", "h6", "i", "iframe", "ins", "kdb", "li", "nobr", "object", "pre", "p", "q", "samp", "small", "span", 
+    "strike", "s", "strong", "sub", "sup", "td", "th", "tt", "u", "var", "article", "aside", "bdi", "command", 
+    "datalist", "details", "embed", "figure", "figcaption", "footer", "header", "hgroup", "keygen", "mark", 
+    "meter", "nav", "outpuFt", "progress", "rp", "ruby", "rt", "section", "summary", "time", "wbr"
+];
 
 
 const elementClassName = 'voipgrid-phone';
@@ -110,9 +110,16 @@ var config = {
 	characterData: true
 };
 
-observer.observe(target, config);
+self.port.on('start_observe', function(message) {
+	if(target != null && typeof(target) != 'undefined'){
+		var elements = getElements(target);
+		processElements(elements);
 
-$(function(){
-	var elements = getElements(target);
-	processElements(elements);
+		observer.observe(target, config);
+	}
 });
+
+self.port.emit('is_observe_start');
+
+
+

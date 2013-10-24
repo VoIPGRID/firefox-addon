@@ -96,6 +96,13 @@
    "title": "Platform URL", 
    "type": "string", 
    "value": "https://partner.voipgrid.nl/"
+  },
+  {
+   "description": "default: true", 
+   "name": "click_to_dial_enabled", 
+   "title": "Enable click-to-dial", 
+   "type": "bool", 
+   "value": true
   }
  ], 
  "sdkVersion": "1.14", 
