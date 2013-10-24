@@ -7,12 +7,16 @@ $(function() {
 
     // a widget header click will minimize/maximize the widget's panel
     $('.widget .widget-header').on('click', function() {
+        var status = '';
+
         // check if it's closed or opened
         if($(this).parent().data('opened') === true) {
             $(this).parent()
                     .data('opened', false)
                     .attr('data-opened', 'false')
                     .find('.widget-content').hide(200);
+
+            status = 'closed';
         }
         else {
             // hide the scrollbar while resizing
@@ -24,6 +28,14 @@ $(function() {
                         // get back the scrollbar after resizing
                         $('body').removeClass('scrollbarhide');
                     });
+
+            status = 'opened';
+        }
+
+        dump('slider ' + status + '\n');
+
+        if($(this).parent().find('#queue').length > 0){
+            self.port.emit('change_queue_widget_status', status);
         }
     });
 
@@ -31,6 +43,7 @@ $(function() {
     $('.widget.queues').on('click', 'li', function() {
         if($(this).attr('title') != undefined) {
             $(this).siblings().removeClass('selected');
+
             if($(this).attr('class') == 'selected') {
                 $(this).removeClass('selected');
                 self.port.emit('setprimary', '');
@@ -63,6 +76,7 @@ $(function() {
             self.port.emit('setuserdestination', null);
         }
     });
+
     $('#statusupdate').change(function() {
         self.port.emit('selectuserdestination', $('#statusupdate option:selected').val());
     });
@@ -172,6 +186,8 @@ $(function() {
             switch (json.type){
                 case 'clear':{
                     break;
+
+
                 }
                 case 'queues':{
                     var ul = $('<ul>');
