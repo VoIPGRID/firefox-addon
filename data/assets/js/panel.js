@@ -176,51 +176,50 @@ $(function() {
     });
 
     // update the list of queue callgroups
-    self.port.on('updatelist', function(json) {
+    self.port.on('updatequeues', function(json) {
         
         if(lastQueuesJson != json){
-            lastQueuesJson = json;
 
-            $('#queue').empty();
+            lastQueuesJson = json;
+            var queue = [];
+
+            var applyQueue = function(){
+                ko.applyBindings({'queue': queue});
+            }
+
+            var showEmpty = function(){
+                $('.empty-queue').css('display', 'block');
+            };
 
             switch (json.type){
                 case 'clear':{
+                    applyQueue();
+                    showEmpty();
                     break;
-
-
                 }
                 case 'queues':{
-                    var ul = $('<ul>');
-
                     if(json.queues.length == 0){
-                        ul.append($('<li>', {text: 'Je hebt momenteel geen wachtrijen.'}))
+                        applyQueue();
+                        showEmpty();
                     }else{
                         for (var i in json.queues){
-                            var que = json.queues[i];
+                            var item = {
+                                itemClass: json.queues[i]['id'] == json.primary ? 'selected' : '',
+                                itemTitle: json.queues[i]['id'],
+                                itemText: json.queues[i]['description'],
 
-                            var item = $('<li>');
+                                indicatorText: '?',
+                                indicatorId: 'size' + json.queues[i]['id'],
+                                indicatorTitle: json.queues[i]['id'],
 
-                            if(que['id'] == json.primary){
-                                item.attr('class', 'selected');
+                                codeText: '(' + json.queues[i]['internal_number'] + ')'
                             }
 
-                            item.attr('title', que['id']);
-
-                            var indicator = $('<span>', {'class': 'indicator', text: '?'});
-                            indicator.attr('id', 'size' + que['id']);
-                            indicator.attr('title', que['id']);
-
-                            item.append(indicator).append(que['description']);
-
-                            var code = $('<span>', {'class': 'code', text: '(' + que['internal_number'] + ')'});
-
-                            item.append(code);
-                            ul.append(item);
+                            queue.push(item);
                         }
+
+                        applyQueue();
                     }
-
-                    $('#queue').append(ul);
-
                     break;
                 }
             }

@@ -8,27 +8,29 @@
 </head>
 
 <body>
-    <div class="account">
+    <div class="account" id="login-section" style="display: none;">
         <form id="form"></form>
-        <i class="icon-user"></i> <span id="head">Uitgelogd</span> <!-- 'Logged out' -->
-        <i class="icon-remove-sign" id="close" style="float:right; cursor:pointer;"></i>
+        <i class="icon-user"></i> 
+        <span id="head">Uitgelogd</span> 
     </div>
-
+        
     <div id="body">
-        <ul class="menu">
-            <li data-link="help">
-                <i class="icon-question-sign" id="help"></i>
-                Help
-            </li>
-            <li data-link="settings">
-                <i class="icon-cog" id="settings"></i>
-                Instellingen
-            </li>
-            <li data-link="logout">
-                <i class="icon-signout" id="logout"></i>
-                Uitloggen
-            </li>
-        </ul>
+        <div class="account">
+            <div class="pull-right">
+                <i data-link="help" class="icon-question-sign" id="help"></i>
+                
+                <i data-link="settings" class="icon-cog" id="settings"></i>
+
+                <i class="icon-remove-sign" 
+                        id="close" 
+                        style="float:right; cursor:pointer;"></i>
+            </div>
+
+            <div>
+                <i class="icon-signout" data-link="logout" id="logout"></i> 
+                    <span id="user-name">emily.taylor33@hasalongdomain.com</span>
+            </div>
+        </div>
     
         <div class="widget availability" data-opened="false">
             <div class="widget-header">
@@ -49,13 +51,53 @@
                 </form>
             </div>
         </div>
+
+        <div class="widget hblf" data-opened="false">
+            <div class="widget-header">
+                <h3>
+                    <i class="icon-phone-sign"></i> Collega's
+                    <form class="form-search">
+                        <input name="search" type="search" class="search-query" />
+                        <i class="icon-search"></i>
+                    </form>
+                </h3>
+            </div>
+            <div class="widget-content" id="hblf">
+                <ul data-bind="foreach: contacts">
+                    <li class="contact">
+                        <div data-bind="attr: { 'class': status }">
+                            <i class="icon-phone-sign"></i>
+                        </div>
+                        <div class="info">
+                            <div class="name" data-bind:"text: name">
+                            </div>
+                            <div class="extension" data-bind:"text: extension">
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <ul class="empty-collegas" style="display: none;">
+                    <li>Je hebt momenteel geen collegs's.</li>
+                </ul>
+            </div>        
+        </div>
     
         <div class="widget queues" data-opened="false">
             <div class="widget-header">
                 <h3><i class="icon-time"></i> Wachtrijen</h3> <!-- 'Queues' -->
             </div>
             <div class="widget-content" id="queue">
-                <ul>
+                <ul data-bind="foreach: queue">
+                    <li data-bind="attr: { title: itemTitle, 'class': itemClass }">
+                        <span class="indicator" 
+                              data-bind="text: indicatorText, attr: { id: indicatorId, title: indicatorTitle }"></span>
+                        <span data-bind="text: itemText"></span>
+                        <span class="code" 
+                              data-bind="text: codeText"></span>
+                    </li>
+                </ul>
+                <ul class="empty-queue" style="display: none;">
+                    <li>Je hebt momenteel geen wachtrijen.</li>
                 </ul>
             </div>        
         </div>
@@ -65,6 +107,13 @@
     <!--<footer>
         versie 1.0
     </footer>-->
+
+    <div class="templates" style="display: none;">
+        <div id="addres-book-item">
+            
+        </div>
+    </div>
+
 </body>
  
 </html>
