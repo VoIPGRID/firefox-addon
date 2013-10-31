@@ -57,45 +57,52 @@
                 <h3>
                     <i class="icon-phone-sign"></i> Collega's
                     <form class="form-search">
-                        <input name="search" type="search" class="search-query" />
+                        <input name="search" type="search" class="search-query" id="search-query" />
                         <i class="icon-search"></i>
                     </form>
                 </h3>
             </div>
             <div class="widget-content" id="hblf">
+
                 <ul data-bind="foreach: contacts">
                     <li class="contact">
                         <div data-bind="attr: { 'class': status }">
                             <i class="icon-phone-sign"></i>
                         </div>
                         <div class="info">
-                            <div class="name" data-bind:"text: name">
+                            <div class="name">
+                                <span data-bind="text: name"></span>
                             </div>
-                            <div class="extension" data-bind:"text: extension">
+                            <div class="extension">
+                                <span data-bind="text: extension"></span>
                             </div>
                         </div>
                     </li>
                 </ul>
-                <ul class="empty-collegas" style="display: none;">
+
+                <ul class="empty-contacts" style="display: none;">
                     <li>Je hebt momenteel geen collegs's.</li>
                 </ul>
+
             </div>        
         </div>
     
         <div class="widget queues" data-opened="false">
             <div class="widget-header">
-                <h3><i class="icon-time"></i> Wachtrijen</h3> <!-- 'Queues' -->
+                <h3><i class="icon-time"></i> Wachtrijen</h3> 
             </div>
             <div class="widget-content" id="queue">
-                <ul data-bind="foreach: queue">
+
+                <ul data-bind="foreach: queues">
                     <li data-bind="attr: { title: itemTitle, 'class': itemClass }">
                         <span class="indicator" 
-                              data-bind="text: indicatorText, attr: { id: indicatorId, title: indicatorTitle }"></span>
+                              data-bind="attr: { id: indicatorId, title: indicatorTitle }">?</span>
                         <span data-bind="text: itemText"></span>
                         <span class="code" 
                               data-bind="text: codeText"></span>
                     </li>
                 </ul>
+
                 <ul class="empty-queue" style="display: none;">
                     <li>Je hebt momenteel geen wachtrijen.</li>
                 </ul>

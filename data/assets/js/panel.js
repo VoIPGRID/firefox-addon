@@ -1,44 +1,122 @@
 $(function() {
     var lastQueuesJson = null;
     var lastPanelJson = null;
+    var lastContactsJson = null;
+
+    var last_search_query = '';
+    var search_query = '';
+
+    var ContactViewModal = function(data){
+        var that = this;
+
+        that.status = ko.observable('status-icon available');
+
+        that.name = ko.observable(data.description);
+        that.extension = ko.observable(data.internal_number);
+    };
+
+    var QueueViewModal = function(data, primary){
+        var that = this;
+
+        that.itemClass = data.id == primary 
+            ? 'selected' : '';
+
+        that.itemTitle = data.id;
+        that.itemText = data.description;
+
+        that.indicatorId = 'size' + data.id;
+        that.indicatorTitle = data.id;
+
+        that.codeText = '(' + data.internal_number + ')';
+    };
+
+    var PanelViewModal = function(){
+        var that = this;
+
+        that.contacts = ko.observableArray([]);
+        that.queues = ko.observableArray([]);
+
+        that.AddContact = function(contact){
+            that.contacts.push(ko.observable(contact));
+        }
+
+        that.AddQueue = function(queue){
+            that.queues.push(ko.observable(queue));
+        }
+
+        that.ClearContacts = function(){
+            that.contacts.removeAll();
+        } 
+
+        that.ClearQueues = function(){
+            that.queues.removeAll();
+        }
+    };
+
+    var panelViewModal = 
+        new PanelViewModal();
+    ko.applyBindings(panelViewModal);
+
 
     // close all widgets with data-opened="false"
     $('.widget[data-opened="false"] .widget-content').hide();
 
+    var widgetIsOpenned = function(widget){
+        return $(widget).parent().data('opened') === true;
+    }
+
+    var widgetClose = function(widget){
+        $(widget).parent()
+            .data('opened', false)
+            .attr('data-opened', 'false')
+            .find('.widget-content')
+            .hide(200);
+    };
+
+    var widgetOpen = function(widget){
+        $('html').addClass('scrollbarhide');
+
+        $(widget).parent()
+            .data('opened', true)            
+            .attr('data-opened', 'true')
+            .find('.widget-content')
+            .show(200, function() {
+                $('body').removeClass('scrollbarhide');
+            });
+    };
+
+    var widgetIsQueues = function(widget){
+        return $(widget).parent().hasClass('availability');
+    };
+
+    var widgetIsContacts = function(widget){
+        return $(widget).parent().hasClass('hblf');
+    };
+
     // a widget header click will minimize/maximize the widget's panel
     $('.widget .widget-header').on('click', function() {
-        var status = '';
 
-        // check if it's closed or opened
-        if($(this).parent().data('opened') === true) {
-            $(this).parent()
-                    .data('opened', false)
-                    .attr('data-opened', 'false')
-                    .find('.widget-content').hide(200);
+        if(widgetIsContacts(this)){
+            dump(widgetIsOpenned(this) + '\n');
 
-            status = 'closed';
-        }
-        else {
-            // hide the scrollbar while resizing
-            $('html').addClass('scrollbarhide');
-            $(this).parent()
-                    .data('opened', true)            
-                    .attr('data-opened', 'true')
-                    .find('.widget-content').show(200, function() {
-                        // get back the scrollbar after resizing
-                        $('body').removeClass('scrollbarhide');
-                    });
-
-            status = 'opened';
+            if($(this).find("input:focus").length > 0){
+                widgetOpen(this);
+                return;
+            }
         }
 
-        dump('slider ' + status + '\n');
+        if(widgetIsOpenned(this)){
+            widgetClose(this);
+        }else{
+            widgetOpen(this);
+        }
 
-        if($(this).parent().find('#queue').length > 0){
-            self.port.emit('change_queue_widget_status', status);
+        if(widgetIsQueues(this)){
+            self.port.emit('change_queue_widget_status', 
+                    widgetIsOpenned(this) ? 'opened' : 'closed');
         }
     });
-
+    
     // widget select a li
     $('.widget.queues').on('click', 'li', function() {
         if($(this).attr('title') != undefined) {
@@ -106,8 +184,6 @@ $(function() {
 
         if(oHeight != null) {
             self.port.emit('resize', { height: oHeight });
-
-            dump('resizeonshow resize emit, height: ' + oHeight + '\n');
         }
     });
 
@@ -175,55 +251,83 @@ $(function() {
             $('#head').text(text);
     });
 
-    // update the list of queue callgroups
-    self.port.on('updatequeues', function(json) {
-        
+    var upadateQueues = function(json){
         if(lastQueuesJson != json){
-
             lastQueuesJson = json;
-            var queue = [];
-
-            var applyQueue = function(){
-                ko.applyBindings({'queue': queue});
-            }
 
             var showEmpty = function(){
                 $('.empty-queue').css('display', 'block');
             };
 
+            panelViewModal.ClearQueues();
+
             switch (json.type){
                 case 'clear':{
-                    applyQueue();
                     showEmpty();
                     break;
                 }
                 case 'queues':{
                     if(json.queues.length == 0){
-                        applyQueue();
                         showEmpty();
                     }else{
                         for (var i in json.queues){
-                            var item = {
-                                itemClass: json.queues[i]['id'] == json.primary ? 'selected' : '',
-                                itemTitle: json.queues[i]['id'],
-                                itemText: json.queues[i]['description'],
-
-                                indicatorText: '?',
-                                indicatorId: 'size' + json.queues[i]['id'],
-                                indicatorTitle: json.queues[i]['id'],
-
-                                codeText: '(' + json.queues[i]['internal_number'] + ')'
-                            }
-
-                            queue.push(item);
+                            panelViewModal.AddQueue(new QueueViewModal(json.queues[i], json.primary));
                         }
-
-                        applyQueue();
                     }
                     break;
                 }
             }
         }
+    };
+
+    var upadateContacts = function(json){
+        dump('updatecontacts ' + '\n');
+
+        if(lastContactsJson != json 
+                || search_query != last_search_query){
+
+            lastContactsJson = json;
+            last_search_query = search_query;
+
+            var showEmpty = function(){
+                $('.empty-contacts').css('display', 'block');
+            };
+
+            panelViewModal.ClearContacts();
+
+            switch (json.type){
+                case 'clear':{
+                    showEmpty();
+                    break;
+                }
+                case 'contacts':{
+                     if(json.contacts.length == 0){
+                        showEmpty();
+                    }else{
+                        for(var i in json.contacts){
+                            var query_exist = json.contacts[i]
+                                    .description
+                                    .toLowerCase()
+                                    .indexOf(search_query) > -1;
+
+                            if(query_exist){
+                                panelViewModal.AddContact(new ContactViewModal(json.contacts[i]));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    // update the list of queue callgroups
+    self.port.on('updatequeues', function(json) {
+        upadateQueues(json);
+    });
+
+    // update the list of contacts callgroups
+    self.port.on('updatecontacts', function(json) {
+        upadateContacts(json);
     });
 
     // update the queue sizes in the list of queue callgroups
@@ -296,6 +400,16 @@ $(function() {
                 }
             }
         }
+    });
+
+    $('#search-query').keyup(function(){
+
+        search_query = $(this)
+            .val()
+            .trim()
+            .toLowerCase();
+
+        upadateContacts(lastContactsJson);
     });
 
 });

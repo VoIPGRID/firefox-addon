@@ -1173,6 +1173,9 @@ ul.menu li i:before {
 .widget-content ul {
   margin: 0;
   padding: 0;
+
+  max-height: 258px;
+  overflow: auto;
 }
 .widget-content ul li {
   cursor: pointer;
