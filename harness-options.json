@@ -37,7 +37,9 @@
     "timers": "sdk/timers", 
     "toolbarbutton": "voipgrid/toolbarbutton",
     "passwords": "sdk/passwords",
-    "promises": "sdk/core/promise"
+    "promises": "sdk/core/promise",
+    "utils" : "sdk/window/utils",
+    "system" : "sdk/system"
    }, 
    "sectionName": "lib"
   }, 

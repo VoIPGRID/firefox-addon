@@ -1,19 +1,23 @@
+
+var sip = null;
+
+$(function(){
+    /* sip initialization */
+    SIPml.init(function(e){
+        dump('SIPml engine initialized' + '\n');   
+            sip = (new SIP()).init();
+    }, function(e){
+        dump('The SIPml engine could not be initialized' + '\n');
+        dump('Error: ' + e.message + '\n');
+    });
+})
+
 $(function() {
     var lastQueuesJson = null;
     var lastPanelJson = null;
-    var lastContactsJson = null;
 
-    var last_search_query = '';
     var search_query = '';
-
-    var ContactViewModal = function(data){
-        var that = this;
-
-        that.status = ko.observable('status-icon available');
-
-        that.name = ko.observable(data.description);
-        that.extension = ko.observable(data.internal_number);
-    };
+    var phoneAccounts = [];
 
     var QueueViewModal = function(data, primary){
         var that = this;
@@ -36,10 +40,6 @@ $(function() {
         that.contacts = ko.observableArray([]);
         that.queues = ko.observableArray([]);
 
-        that.AddContact = function(contact){
-            that.contacts.push(ko.observable(contact));
-        }
-
         that.AddQueue = function(queue){
             that.queues.push(ko.observable(queue));
         }
@@ -55,8 +55,19 @@ $(function() {
 
     var panelViewModal = 
         new PanelViewModal();
+
     ko.applyBindings(panelViewModal);
 
+    function resize(){
+        dump('html: ' + $('html').height() + ' body: ' + $('body').height() + '\n');
+
+        self.port.emit('resize', $('body').height());
+    }
+
+    // always resize the panel properly when shown
+    self.port.on('resizeonshow', function() {
+        resize();
+    });
 
     // close all widgets with data-opened="false"
     $('.widget[data-opened="false"] .widget-content').hide();
@@ -70,7 +81,9 @@ $(function() {
             .data('opened', false)
             .attr('data-opened', 'false')
             .find('.widget-content')
-            .hide(200);
+            .hide(10, function(){
+                resize();
+            });
     };
 
     var widgetOpen = function(widget){
@@ -80,13 +93,14 @@ $(function() {
             .data('opened', true)            
             .attr('data-opened', 'true')
             .find('.widget-content')
-            .show(200, function() {
+            .show(10, function() {
                 $('body').removeClass('scrollbarhide');
+                resize();
             });
     };
 
     var widgetIsQueues = function(widget){
-        return $(widget).parent().hasClass('availability');
+        return $(widget).parent().hasClass('queues');
     };
 
     var widgetIsContacts = function(widget){
@@ -97,8 +111,6 @@ $(function() {
     $('.widget .widget-header').on('click', function() {
 
         if(widgetIsContacts(this)){
-            dump(widgetIsOpenned(this) + '\n');
-
             if($(this).find("input:focus").length > 0){
                 widgetOpen(this);
                 return;
@@ -114,6 +126,12 @@ $(function() {
         if(widgetIsQueues(this)){
             self.port.emit('change_queue_widget_status', 
                     widgetIsOpenned(this) ? 'opened' : 'closed');
+        }
+
+        if(widgetIsContacts(this)){
+            if(widgetIsOpenned(this)){
+                updateContactList();
+            }
         }
     });
     
@@ -132,16 +150,6 @@ $(function() {
             }
         }
     }); 
-    
-    // detect changes in html and resize the plugin 
-    $('body').on('DOMSubtreeModified', function() {
-        var oHeight = $(this).outerHeight();
-
-        if(oHeight  != null ) {
-            self.port.emit('resize', { height: oHeight });
-        };
-
-    }).trigger('DOMSubtreeModified');
 
     // handle statusupdate inputs
     $('input[name=availability]').change(function() {
@@ -178,15 +186,6 @@ $(function() {
         }
     }, false);
 
-    // always resize the panel properly when shown
-    self.port.on('resizeonshow', function() {
-        var oHeight = $('body').outerHeight()
-
-        if(oHeight != null) {
-            self.port.emit('resize', { height: oHeight });
-        }
-    });
-
     // hide or display the login form
     self.port.on('updateform', function(type) {
         var elements = "";
@@ -195,14 +194,12 @@ $(function() {
 
         switch (type){
             case 'clear':{
+                $('#login-section').css('display', 'none');
                 $('#body').css('display', 'block');
                 $('#close').css('display', 'block');
                 break;
             }
             case 'login':{
-
-                $('#body').css('display', 'none');
-                $('#close').css('display', 'none');
 
                 var fildSet = $('<fieldset />');
                 var table = $('<table />');
@@ -240,15 +237,23 @@ $(function() {
 
                 $('#form').append(fildSet)
                     .append('<br />')
-                    .append(ul);  
+                    .append(ul); 
+
+
+                $('#body').css('display', 'none');
+                $('#close').css('display', 'none');
+                $('#login-section').css('display', 'block');
+
                 break;
             }
         }
+
+        resize();
     });
 
     // update the heading which displays user info
     self.port.on('updatehead', function(text) {
-            $('#head').text(text);
+        $('#head').text(text);
     });
 
     var upadateQueues = function(json){
@@ -258,6 +263,12 @@ $(function() {
             var showEmpty = function(){
                 $('.empty-queue').css('display', 'block');
             };
+
+            var hideEmpty = function(){
+                $('.empty-queue').css('display', 'none');
+            };
+
+            hideEmpty();
 
             panelViewModal.ClearQueues();
 
@@ -280,45 +291,36 @@ $(function() {
         }
     };
 
-    var upadateContacts = function(json){
-        dump('updatecontacts ' + '\n');
+    var updateContactList = function(){
+        var showEmpty = function(){
+            $('.empty-contacts').css('display', 'block');
+        };
 
-        if(lastContactsJson != json 
-                || search_query != last_search_query){
+        var hideEmpty = function(){
+            $('.empty-contacts').css('display', 'none');
+        }
 
-            lastContactsJson = json;
-            last_search_query = search_query;
+        var count = 0;
 
-            var showEmpty = function(){
-                $('.empty-contacts').css('display', 'block');
-            };
+        panelViewModal
+            .ClearContacts();
 
-            panelViewModal.ClearContacts();
+        showEmpty();
 
-            switch (json.type){
-                case 'clear':{
-                    showEmpty();
-                    break;
-                }
-                case 'contacts':{
-                     if(json.contacts.length == 0){
-                        showEmpty();
-                    }else{
-                        for(var i in json.contacts){
-                            var query_exist = json.contacts[i]
-                                    .description
-                                    .toLowerCase()
-                                    .indexOf(search_query) > -1;
+        for(var i in phoneAccounts){
+            // search query
+            if(phoneAccounts[i].description.toLowerCase().indexOf(search_query) != -1){
+                phoneAccounts[i].renderTo
+                    (panelViewModal.contacts);
 
-                            if(query_exist){
-                                panelViewModal.AddContact(new ContactViewModal(json.contacts[i]));
-                            }
-                        }
-                    }
-                }
+                count++;
             }
         }
-    };
+
+        if(count > 0){
+            hideEmpty();
+        }
+    }
 
     // update the list of queue callgroups
     self.port.on('updatequeues', function(json) {
@@ -326,9 +328,36 @@ $(function() {
     });
 
     // update the list of contacts callgroups
-    self.port.on('updatecontacts', function(json) {
-        upadateContacts(json);
+    self.port.on('init-contact-list', function(args) {
+        for(var i in args){
+            phoneAccounts.push((new PhoneAccount()).fromJSON(args[i]));
+        }
+
+        for(var i in phoneAccounts){
+            sip.subscribeTo({
+                impu: phoneAccounts[i].impu,
+                notify: function(args){
+                    phoneAccounts[i].updateState(args);
+                },
+                error: function(args){
+                    args.code;
+                    args.description;
+                    phoneAccounts[i].updateState(
+                        { 
+                            state: 'unavailable'
+                        }
+                    );
+                }
+            });
+        }
+
+        updateContactList();
     });
+
+    self.port.on('clear-contact-list', function(){
+        phoneAccounts = [];
+        updateContactList();
+    })
 
     // update the queue sizes in the list of queue callgroups
     self.port.on('updatequeuesize', function(size, id) {
@@ -409,7 +438,9 @@ $(function() {
             .trim()
             .toLowerCase();
 
-        upadateContacts(lastContactsJson);
+        updateContactList();
     });
 
+    // hide sip element
+    $('embed').hide();
 });
