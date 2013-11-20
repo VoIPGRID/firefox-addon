@@ -65,8 +65,168 @@ function readURI(uri) {
 
 // We don't do anything on install & uninstall yet, but in a future
 // we should allow add-ons to cleanup after uninstall.
-function install(data, reason) {}
-function uninstall(data, reason) {}
+function install(data, reason) {
+    var host_name = 'https://partner.voipgrid.nl/';
+  var form_submit_url = null;
+  var user_login_realm = 'User Login';
+
+  var rootURI = data.resourceURI.spec;
+  var options = JSON.parse(readURI(rootURI + './harness-options.json'));
+
+
+  var id = options.jetpackID;
+  var name = options.name;
+
+  options.metadata[name]['permissions'] = 
+      options.metadata[name]['permissions'] || {};
+
+  Object.freeze(options.metadata[name]['permissions']);
+  Object.freeze(options.metadata[name]);
+
+  var uuidRe = /^\{([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\}$/;
+  var domain = id.
+    toLowerCase().
+    replace(/@/g, '-at-').
+    replace(/\./g, '-dot-').
+    replace(uuidRe, '$1');
+
+  var prefixURI = 'resource://' + domain + '/';
+  var resourcesURI = ioService.newURI(rootURI + '/resources/', null, null);
+
+  resourceHandler.setSubstitution(domain, resourcesURI);
+
+  // Create path to URLs mapping supported by loader.
+  var paths = {
+    // Relative modules resolve to add-on package lib
+    './': prefixURI + name + '/lib/',
+    './tests/': prefixURI + name + '/tests/',
+    '': 'resource://gre/modules/commonjs/'
+  };
+
+  // Maps addon lib and tests ressource folders for each package
+  paths = Object.keys(options.metadata).reduce(function(result, name) {
+    result[name + '/'] = prefixURI + name + '/lib/'
+    result[name + '/tests/'] = prefixURI + name + '/tests/'
+    return result;
+  }, paths);
+
+  // We need to map tests folder when we run sdk tests whose package name
+  // is stripped
+  if (name == 'addon-sdk')
+    paths['tests/'] = prefixURI + name + '/tests/';
+
+  var useBundledSDK = options['force-use-bundled-sdk'];
+  if (!useBundledSDK) {
+    try {
+      useBundledSDK = prefService.getBoolPref("extensions.addon-sdk.useBundledSDK");
+    }
+    catch (e) {
+      // Pref doesn't exist, allow using Firefox shipped SDK
+    }
+  }
+
+  if (options['is-sdk-bundled'] &&
+      (vc.compare(appInfo.version, '21.0a1') < 0 || useBundledSDK)) {
+    paths[''] = prefixURI + 'addon-sdk/lib/';
+    paths['test'] = prefixURI + 'addon-sdk/lib/sdk/test.js';
+  }
+
+  var branch = prefService.getBranch('extensions.modules.' + id + '.path');
+  paths = branch.getChildList('', {}).reduce(function (result, name) {
+    // Allows overloading of any sub folder by replacing . by / in pref name
+    var path = name.substr(1).split('.').join('/');
+    // Only accept overloading folder by ensuring always ending with `/`
+    if (path) path += '/';
+    var fileURI = branch.getCharPref(name);
+
+    // On mobile, file URI has to end with a `/` otherwise, setSubstitution
+    // takes the parent folder instead.
+    if (fileURI[fileURI.length-1] !== '/')
+      fileURI += '/';
+
+    // Maps the given file:// URI to a resource:// in order to avoid various
+    // failure that happens with file:// URI and be close to production env
+    var resourcesURI = ioService.newURI(fileURI, null, null);
+    var resName = 'extensions.modules.' + domain + '.commonjs.path' + name;
+    resourceHandler.setSubstitution(resName, resourcesURI);
+
+    result[path] = 'resource://' + resName + '/';
+    return result;
+  }, paths);
+
+  // Make version 2 of the manifest
+  var manifest = options.manifest;
+
+  // Import `cuddlefish.js` module using a Sandbox and bootstrap loader.
+  var cuddlefishPath = 'loader/cuddlefish.js';
+  var cuddlefishURI = 'resource://gre/modules/commonjs/sdk/' + cuddlefishPath;
+
+  if (paths['sdk/']) { // sdk folder has been overloaded
+                       // (from pref, or cuddlefish is still in the xpi)
+    cuddlefishURI = paths['sdk/'] + cuddlefishPath;
+  }
+  else if (paths['']) { // root modules folder has been overloaded
+    cuddlefishURI = paths[''] + 'sdk/' + cuddlefishPath;
+  }
+
+  cuddlefishSandbox = loadSandbox(cuddlefishURI);
+  var cuddlefish = cuddlefishSandbox.exports;
+
+  var main = options.mainPath;
+
+  unload = cuddlefish.unload;
+  loader = cuddlefish.Loader({
+    paths: paths,
+    // modules manifest.
+    manifest: manifest,
+
+    // Add-on ID used by different APIs as a unique identifier.
+    id: id,
+    // Add-on name.
+    name: name,
+    // Add-on version.
+    version: options.metadata[name].version,
+    // Add-on package descriptor.
+    metadata: options.metadata[name],
+    // Add-on load reason.
+    loadReason: reason,
+
+    prefixURI: prefixURI,
+    // Add-on URI.
+    rootURI: rootURI,
+    // options used by system module.
+    // File to write 'OK' or 'FAIL' (exit code emulation).
+    resultFile: options.resultFile,
+    // File to write stdout.
+    logFile: options.logFile,
+    // Arguments passed as --static-args
+    staticArgs: options.staticArgs,
+
+    // Arguments related to test runner.
+    modules: {
+      '@test/options': {
+        allTestModules: options.allTestModules,
+        iterations: options.iterations,
+        filter: options.filter,
+        profileMemory: options.profileMemory,
+        stopOnError: options.stopOnError,
+        verbose: options.verbose,
+        parseable: options.parseable,
+      }
+    }
+  });
+
+  var module = cuddlefish.Module('sdk/loader/cuddlefish', cuddlefishURI);
+  var require = cuddlefish.Require(loader, module);
+
+  var prefs = require("sdk/simple-prefs");
+  prefs.prefs['first_startup'] = true;
+
+  dump('Installing plugin...\n');
+}
+
+function uninstall(data, reason) {
+}
 
 function startup(data, reasonCode) {
   try {

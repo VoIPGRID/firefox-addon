@@ -64,7 +64,7 @@ var SIP = function () {
                     impu: sipConfig['sip_impu'], // mandatory: valid SIP Uri (IMS Public Identity)
                     password: sipConfig['sip_pass'], // optional
                     display_name: sipConfig['sip_display_name'], // optional
-                    // websocket_proxy_url: 'ws://sipproxy-test.voipgrid.osso.nl:80', // optional
+                    websocket_proxy_url: 'ws://websocket.voipgrid.osso.nl:80', // optional
                     enable_rtcweb_breaker: false, // optional
                     sip_headers: [ // optional
                         { name: 'User-Agent', value: 'IM/Webclient SIPml5'},//.IM-client/OMA1.0 sipML5-v1.0.0.0' },
