@@ -334,19 +334,23 @@ $(function() {
         }
 
         for(var i in phoneAccounts){
+
             sip.subscribeTo({
+                phone_account: phoneAccounts[i],
                 impu: phoneAccounts[i].impu,
                 notify: function(args){
-                    phoneAccounts[i].updateState(args);
+                    dump(i + ' ' + this.phone_account.impu + '\n');
+                    this.phone_account.updateState(args);
                 },
                 error: function(args){
                     args.code;
                     args.description;
-                    phoneAccounts[i].updateState(
+                    this.phone_account.updateState(
                         { 
                             state: 'unavailable'
                         }
                     );
+                    dump(args.code + ': ' + args.description + '\n');
                 }
             });
         }
