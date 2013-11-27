@@ -170,7 +170,7 @@ $(function() {
     // handle button clicks
     window.addEventListener('click', function(event) {
         if(event.target.id == 'login') {
-            self.port.emit('login', $('#username').val(), $('#password').val());
+            self.port.emit('login', $('#account-form #username').val(), $('#account-form #password').val());
         }
         else if(event.target.id == 'logout') {
             self.port.emit('logout');
@@ -186,6 +186,44 @@ $(function() {
         }
     }, false);
 
+    $('#account-form input').keydown(function (e) {
+      switch(e.which)
+      {
+        case 13:
+        {
+            self.port.emit('login', $('#account-form #username').val(), $('#account-form #password').val());
+            e.preventDefault();
+            break;
+        }
+        case 9:
+        {
+            var elem = this;
+            var elems = $('#account-form input').filter(function(){
+                return elem.tabIndex < this.tabIndex;
+            });
+
+            if(elems.length == 0){
+                $('#account-form #username').focus();
+            } else {
+                $(elems[0]).focus();
+            }
+
+            e.preventDefault();
+            break;
+        }
+      }
+    });
+
+    $('#search-query').keydown(function(e){
+        switch(e.which){
+            case 13:
+            {
+                e.preventDefault();
+                break;
+            }
+        }
+    });
+
     // hide or display the login form
     self.port.on('updateform', function(type) {
 
@@ -195,6 +233,9 @@ $(function() {
 
         var showLoginForm = function(){
             $('#login-section').css('display', 'block');
+
+            $('#account-form input').val('');
+            $('#account-form input').first().focus();
         };
 
         var hidePanelContent = function(){
@@ -206,8 +247,6 @@ $(function() {
             $('#body').css('display', 'block');
             $('#close').css('display', 'block');
         }
-
-        $('#form').empty();
 
         switch (type){
             case 'clear':{

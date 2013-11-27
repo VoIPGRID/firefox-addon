@@ -7,7 +7,7 @@
     <link href="http://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600" rel="stylesheet">
 </head>
 
-<body>
+<body style="-moz-user-select: none;">
     <div class="account" id="login-section" style="display: none;">
         <form id="account-form">
             <fieldset>
@@ -15,21 +15,22 @@
                     <tr>
                         <td>e-mailadres</td>
                         <td>
-                            <input id="username" type="text" />
+                            <input tabIndex="1" id="username" type="text" />
                         </td>
                     </tr>
                     <tr>
                         <td>wachtwoord</td>
                         <td>
-                            <input id="password" type="password" />
+                            <input tabIndex="2" id="password" type="password" />
                         </td>
                     </tr>
                 </table>
             </fieldset>
             <br />
+
             <ul class="menu">
-                <li data-link="login">
-                    <i class="icon-signin" id="login"></i>
+                <li data-link="login" id="login">
+                    <i class="icon-signin"></i>
                     Inloggen
                 </li>
             </ul>
