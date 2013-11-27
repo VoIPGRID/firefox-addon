@@ -1158,6 +1158,7 @@ ul.menu li i:before {
   line-height: 40px;
   margin: 0;
   padding: 0 10px;
+  -moz-user-select: none;
 }
 .widget .widget-header h3 i {
   display: block;

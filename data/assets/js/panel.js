@@ -188,61 +188,37 @@ $(function() {
 
     // hide or display the login form
     self.port.on('updateform', function(type) {
-        var elements = "";
+
+        var hideLoginForm = function(){
+            $('#login-section').css('display', 'none');
+        };
+
+        var showLoginForm = function(){
+            $('#login-section').css('display', 'block');
+        };
+
+        var hidePanelContent = function(){
+            $('#body').css('display', 'none');
+            $('#close').css('display', 'none');
+        }
+
+        var showPanelContent = function(){
+            $('#body').css('display', 'block');
+            $('#close').css('display', 'block');
+        }
 
         $('#form').empty();
 
         switch (type){
             case 'clear':{
-                $('#login-section').css('display', 'none');
-                $('#body').css('display', 'block');
-                $('#close').css('display', 'block');
+                hideLoginForm();
+                showPanelContent();
+
                 break;
             }
             case 'login':{
-
-                var fildSet = $('<fieldset />');
-                var table = $('<table />');
-
-                var login = $('<input>');
-                login.attr('id', 'username');
-                login.attr('type', 'text');
-
-                var password = $('<input>');
-                password.attr('id', 'password');
-                password.attr('type', 'password');
-
-                table
-                    .append($("<tr />")
-                        .append($('<td>', { text: 'e-mailadres'}))
-                        .append($('<td>')
-                            .append(login)
-                        ))
-                    .append($("<tr />")
-                        .append($('<td>', { text: 'wachtwoord'}))
-                        .append($('<td>')
-                            .append(password)
-                        ));
-
-                fildSet.append(table);
-
-                var ul = $('<ul>', {'class': 'menu'});
-                var li = $('<li>');
-                var i = $('<i>', {'class': 'icon-signin'});
-
-                li.attr('data-link', 'login');
-                i.attr('id', 'login');
-
-                ul.append(li.append(i).append('Inloggen'));
-
-                $('#form').append(fildSet)
-                    .append('<br />')
-                    .append(ul); 
-
-
-                $('#body').css('display', 'none');
-                $('#close').css('display', 'none');
-                $('#login-section').css('display', 'block');
+                hidePanelContent();
+                showLoginForm();
 
                 break;
             }
@@ -251,9 +227,14 @@ $(function() {
         resize();
     });
 
-    // update the heading which displays user info
+    // update the heading which displays status
     self.port.on('updatehead', function(text) {
         $('#head').text(text);
+    });
+
+    // update the heading which displays user info
+    self.port.on('update-user-name', function(text) {
+        $('#user-name').text(text);
     });
 
     var upadateQueues = function(json){
@@ -296,18 +277,29 @@ $(function() {
             $('.empty-contacts').css('display', 'block');
         };
 
+        var showNotFound = function(){
+            $('.not-found-contacts').css('display', 'block');
+        };
+
+        var hideNotFound = function(){
+            $('.not-found-contacts').css('display', 'none');
+        };
+
         var hideEmpty = function(){
             $('.empty-contacts').css('display', 'none');
-        }
+        };
 
-        var count = 0;
-
-        panelViewModal
+         panelViewModal
             .ClearContacts();
 
-        showEmpty();
+        hideEmpty();
+        hideNotFound();
 
-        for(var i in phoneAccounts){
+        if(phoneAccounts.length > 0){
+
+            var count = 0;
+
+            for(var i in phoneAccounts){
             // search query
             if(phoneAccounts[i].description.toLowerCase().indexOf(search_query) != -1){
                 phoneAccounts[i].renderTo
@@ -315,10 +307,14 @@ $(function() {
 
                 count++;
             }
+
+            if(count > 0){
+                showNotFound();
+            }
         }
 
-        if(count > 0){
-            hideEmpty();
+        } else {
+            showEmpty();
         }
     }
 
@@ -334,23 +330,19 @@ $(function() {
         }
 
         for(var i in phoneAccounts){
-
             sip.subscribeTo({
-                phone_account: phoneAccounts[i],
                 impu: phoneAccounts[i].impu,
                 notify: function(args){
-                    dump(i + ' ' + this.phone_account.impu + '\n');
-                    this.phone_account.updateState(args);
+                    phoneAccounts[i].updateState(args);
                 },
                 error: function(args){
                     args.code;
                     args.description;
-                    this.phone_account.updateState(
+                    phoneAccounts[i].updateState(
                         { 
                             state: 'unavailable'
                         }
                     );
-                    dump(args.code + ': ' + args.description + '\n');
                 }
             });
         }

@@ -12,7 +12,7 @@
    "moduleName": "listen", 
    "packageName": "voipgrid", 
    "requirements": {
-   "unload+": "voipgrid/unload+"
+    "unload+": "voipgrid/unload+"
    }, 
    "sectionName": "lib"
   }, 

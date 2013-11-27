@@ -103,7 +103,7 @@ var SIP = function () {
             e.newSession.accept(); // e.newSession.reject() to reject the call
         },
         subscribeTo = function (args) {
-           // Setup listener
+            // Setup listener
             var listener = function (e) {
                 if (e.type == 'i_notify') {
                     dump('NOTIFY:\n ' + e.getContentString() + '\n');

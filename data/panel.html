@@ -9,7 +9,32 @@
 
 <body>
     <div class="account" id="login-section" style="display: none;">
-        <form id="form"></form>
+        <form id="account-form">
+            <fieldset>
+                <table>
+                    <tr>
+                        <td>e-mailadres</td>
+                        <td>
+                            <input id="username" type="text" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>wachtwoord</td>
+                        <td>
+                            <input id="password" type="password" />
+                        </td>
+                    </tr>
+                </table>
+            </fieldset>
+            <br />
+            <ul class="menu">
+                <li data-link="login">
+                    <i class="icon-signin" id="login"></i>
+                    Inloggen
+                </li>
+            </ul>
+        </form>
+
         <i class="icon-user"></i> 
         <span id="head">Uitgelogd</span> 
     </div>
@@ -34,7 +59,10 @@
     
         <div class="widget availability" data-opened="false">
             <div class="widget-header">
-                <h3><i class="icon-phone-sign"></i> Bereikbaarheid</h3> <!-- 'Availability' -->
+                <h3>
+                    <i class="icon-phone-sign"></i> 
+                    Bereikbaarheid
+                </h3> <!-- 'Availability' -->
             </div>
             <div class="widget-content">
                 <form>
@@ -55,7 +83,8 @@
         <div class="widget hblf" data-opened="false">
             <div class="widget-header">
                 <h3>
-                    <i class="icon-phone-sign"></i> Collega's
+                    <i class="icon-phone-sign"></i>
+                    Collega's
                     <form class="form-search">
                         <input name="search" type="search" class="search-query" id="search-query" />
                         <i class="icon-search"></i>
@@ -80,16 +109,22 @@
                     </li>
                 </ul>
 
-                <ul class="empty-contacts" style="display: none;">
-                    <li>Je hebt momenteel geen collegs's.</li>
+                <ul class="empty-contacts">
+                    <li>Je hebt geen collega's.</li>
                 </ul>
 
+                <ul class="not-found-contacts" style="display: none;">
+                    <li>Collegs's niet gevonden.</li>
+                </ul>
             </div>        
         </div>
     
         <div class="widget queues" data-opened="false">
             <div class="widget-header">
-                <h3><i class="icon-time"></i> Wachtrijen</h3> 
+                <h3>
+                    <i class="icon-time"></i> 
+                    Wachtrijen
+                </h3> 
             </div>
             <div class="widget-content" id="queue">
 
