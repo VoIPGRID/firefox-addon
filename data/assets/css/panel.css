@@ -1086,16 +1086,19 @@ div.account .pull-right {
   float: right;
   margin-top: 1px;
 }
+div.account .pull-right span,
+div.account .pull-right i {
+  cursor: pointer;
+}
 div.account #user-name {
   overflow: hidden;
   white-space: nowrap;
-  width: calc(100% - 120px);
+  width: calc(100% - 140px);
   display: inline-block;
   text-overflow: ellipsis;
 }
 div.account #logout {
   font-size: 11px;
-  cursor: pointer;
   font-weight: bold;
   float: left;
 }

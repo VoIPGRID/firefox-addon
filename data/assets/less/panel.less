@@ -51,17 +51,19 @@ div.account {
     .pull-right {
         float: right;
         margin-top: 1px;
+        span, i {
+            cursor: pointer;
+        }
     }
     #user-name {
         overflow: hidden;
         white-space: nowrap;
-        width: calc(~"100% - 120px");
+        width: calc(~"100% - 140px");
         display: inline-block;
         text-overflow: ellipsis;
     }
     #logout {
         font-size: 11px;
-        cursor: pointer;
         font-weight: bold;
         float: left;
         &:hover {
@@ -101,7 +103,7 @@ div.account {
 @import "widget";
 
 footer {
-    
+
     font-size: 12px;
 
     height: 35px;
