@@ -1069,6 +1069,7 @@ input[type="search"] {
   border-radius: 2px;
   height: 32px;
   padding: 0 12px;
+  box-sizing: border-box;
   -moz-box-sizing: border-box;
 }
 div.account {
