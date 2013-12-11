@@ -155,21 +155,24 @@ $(function() {
     $('input[name=availability]').change(function() {
         if($(this).val() == 'yes') {
             $('#statusupdate').removeAttr('disabled');
+            dump("statusupdate change value: " + $('#statusupdate option:selected').val() + '\n');
             self.port.emit('setuserdestination', $('#statusupdate option:selected').val());
         }
         else {
             $('#statusupdate').attr('disabled', 'disabled');
+            dump("statusupdate change value: " + null + '\n');
             self.port.emit('setuserdestination', null);
         }
     });
 
     $('#statusupdate').change(function() {
+        dump("statusupdate change value: " + $('#statusupdate option:selected').val() + '\n');
         self.port.emit('selectuserdestination', $('#statusupdate option:selected').val());
     });
 
     // handle button clicks
     window.addEventListener('click', function(event) {
-        if(event.target.id == 'login') {
+        if($(event.target).parents('#login').length > 0) {
             self.port.emit('login', $('#account-form #username').val(), $('#account-form #password').val());
         }
         else if(event.target.id == 'logout') {
@@ -309,6 +312,8 @@ $(function() {
                 }
             }
         }
+
+        resize();
     };
 
     var updateContactList = function(){
@@ -355,6 +360,8 @@ $(function() {
         } else {
             showEmpty();
         }
+
+        resize();
     }
 
     // update the list of queue callgroups

@@ -86,6 +86,25 @@ var getElements = function(element){
 	return elements;
 };
 
+var getClickTodialElements = function(element){
+	var elements = [];
+
+	$(element).find('.' + elementClassName).each(function(){
+		elements.push(this);
+	})
+
+	return elements;
+};
+
+var removeClickToDialElements = function(elements){
+	for(var i in elements){
+		var element = $(elements[i]);
+
+		var text = element.text();
+		element.replaceWith(text);
+	}
+}
+
 // callback function
 var observerCallback = function(mutations){
 
@@ -112,10 +131,23 @@ var config = {
 
 self.port.on('start_observe', function(message) {
 	if(target != null && typeof(target) != 'undefined'){
+		observer.observe(target, config);
+
 		var elements = getElements(target);
 		processElements(elements);
 
-		observer.observe(target, config);
+		var elements = getElements(target);
+		processElements(elements);
+	}
+});
+
+self.port.on('stop_observe', function(message){
+	if(typeof(observer) != 'undefined' && observer != null){
+		observer.disconnect();
+
+		// remove click to dial elements if exist
+		var elements = getClickTodialElements(target);
+		removeClickToDialElements(elements);
 	}
 });
 
