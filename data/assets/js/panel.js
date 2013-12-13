@@ -1,5 +1,6 @@
 
 var sip = null;
+var phoneAccounts = [];
 
 $(function(){
     /* sip initialization */
@@ -17,46 +18,6 @@ $(function() {
     var lastPanelJson = null;
 
     var search_query = '';
-    var phoneAccounts = [];
-
-    var QueueViewModal = function(data, primary){
-        var that = this;
-
-        that.itemClass = data.id == primary 
-            ? 'selected' : '';
-
-        that.itemTitle = data.id;
-        that.itemText = data.description;
-
-        that.indicatorId = 'size' + data.id;
-        that.indicatorTitle = data.id;
-
-        that.codeText = '(' + data.internal_number + ')';
-    };
-
-    var PanelViewModal = function(){
-        var that = this;
-
-        that.contacts = ko.observableArray([]);
-        that.queues = ko.observableArray([]);
-
-        that.AddQueue = function(queue){
-            that.queues.push(ko.observable(queue));
-        }
-
-        that.ClearContacts = function(){
-            that.contacts.removeAll();
-        } 
-
-        that.ClearQueues = function(){
-            that.queues.removeAll();
-        }
-    };
-
-    var panelViewModal = 
-        new PanelViewModal();
-
-    ko.applyBindings(panelViewModal);
 
     function resize(){
         dump('html: ' + $('html').height() + ' body: ' + $('body').height() + '\n');
@@ -291,9 +252,33 @@ $(function() {
                 $('.empty-queue').css('display', 'none');
             };
 
-            hideEmpty();
+            var container = $('#queue .container');
 
-            panelViewModal.ClearQueues();
+            var clearQueues = function(){
+                container.empty();
+            };
+
+            var renderItem = function(data){
+                var item = $('#queue .template li').clone();
+                var indicator = item.children('.indicator');
+                var text = item.children('.text');
+                var code = item.children('.code');
+
+                item.attr('title', data.id);
+                item.attr('class', data.id == json.primary 
+                    ? 'selected' : '');
+
+                indicator.attr('id', 'size' + data.id);
+                indicator.attr('title', data.id);
+
+                text.text(data.description);
+                code.text('(' + data.internal_number + ')');
+
+                container.append(item);
+            };
+
+            clearQueues();
+            hideEmpty();
 
             switch (json.type){
                 case 'clear':{
@@ -305,7 +290,7 @@ $(function() {
                         showEmpty();
                     }else{
                         for (var i in json.queues){
-                            panelViewModal.AddQueue(new QueueViewModal(json.queues[i], json.primary));
+                            renderItem(json.queues[i]);
                         }
                     }
                     break;
@@ -333,9 +318,14 @@ $(function() {
             $('.empty-contacts').css('display', 'none');
         };
 
-         panelViewModal
-            .ClearContacts();
+        var container = 
+            $('#hblf .container');
 
+        var clearContacts = function(){
+            container.empty();
+        }
+
+        clearContacts();
         hideEmpty();
         hideNotFound();
 
@@ -346,8 +336,7 @@ $(function() {
             for(var i in phoneAccounts){
             // search query
             if(phoneAccounts[i].description.toLowerCase().indexOf(search_query) != -1){
-                phoneAccounts[i].renderTo
-                    (panelViewModal.contacts);
+                phoneAccounts[i].renderTo(container);
 
                 count++;
             }
@@ -356,6 +345,7 @@ $(function() {
                 showNotFound();
             }
         }
+
 
         } else {
             showEmpty();

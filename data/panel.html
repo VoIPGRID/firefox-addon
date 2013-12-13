@@ -94,20 +94,7 @@
             </div>
             <div class="widget-content" id="hblf">
 
-                <ul data-bind="foreach: contacts">
-                    <li class="contact">
-                        <div data-bind="attr: { 'class': status }">
-                            <i class="icon-phone-sign"></i>
-                        </div>
-                        <div class="info">
-                            <div class="name">
-                                <span data-bind="text: name"></span>
-                            </div>
-                            <div class="extension">
-                                <span data-bind="text: extension"></span>
-                            </div>
-                        </div>
-                    </li>
+                <ul class="container">
                 </ul>
 
                 <ul class="empty-contacts">
@@ -129,14 +116,16 @@
             </div>
             <div class="widget-content" id="queue">
 
-                <ul data-bind="foreach: queues">
-                    <li data-bind="attr: { title: itemTitle, 'class': itemClass }">
-                        <span class="indicator" 
-                              data-bind="attr: { id: indicatorId, title: indicatorTitle }">?</span>
-                        <span data-bind="text: itemText"></span>
+                <ul class="template" style="display: none">
+                    <li>
+                        <span class="indicator">?</span>
+                        <span class="text"></span>
                         <span class="code" 
                               data-bind="text: codeText"></span>
                     </li>
+                </ul>
+
+                <ul class="container">
                 </ul>
 
                 <ul class="empty-queue" style="display: none;">

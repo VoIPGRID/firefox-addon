@@ -1,14 +1,4 @@
 /**
- * PhoneAccountViewModal Class
- * @constructor
- */
-var PhoneAccountViewModal = function(){
-    this.status = ko.observable('');
-    this.name = ko.observable('');
-    this.extension = ko.observable('');
-};
-
-/**
  * PhoneAccount Class
  * @constructor
  */
@@ -32,13 +22,18 @@ PhoneAccount = function() {
 
     this.state = 'unavailable';
 
-    this.viewModel = new PhoneAccountViewModal();
+    var view = {
+        state: $('<div>'),
+        name: $('<span>'),
+        extension: $('<span>')
+    }
 
     this.updateView = function(){
-        this.viewModel.status = ko.observable('status-icon ' + this.state);
+         view.state.attr('class', 'status-icon ' + this.state);
 
-        this.viewModel.name = ko.observable(this.description);
-        this.viewModel.extension = ko.observable(this.internal_number);
+
+         view.name.text(this.description);
+         view.extension.text(this.internal_number);
     }
     
     this.update = function(args){
@@ -61,7 +56,31 @@ PhoneAccount = function() {
     }
 
     this.renderTo = function(args){
-        args.push(ko.observable(this.viewModel));
+        var elem = $('<li>', {'class': 'contact'});
+        var state = $('<div>');
+        var state_ico = $('<i>', {'class': 'icon-phone-sign'});
+        var info = $('<div>', {'class': 'info'});
+        var name = $('<div>', {'class': 'name'});
+        var name_text = $('<span>');
+        var extension = $('<div>', {'class': 'extension'});
+        var extension_text = $('<span>');
+
+        view.state = state;
+        view.name = name_text;
+        view.extension = extension_text;
+
+        this.updateView();
+
+        extension.append(extension_text);
+        name.append(name_text);
+
+        info.append(name).append(extension);
+        state.append(state_ico);
+
+        elem.append(state).append(info);
+        elem.attr('rel', this.impi);
+
+        args.append(elem);
     }
 
     this.updateState = function(args){
