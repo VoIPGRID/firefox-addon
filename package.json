@@ -14,5 +14,8 @@
     "version": "1.1",
     "fullName": "VoIPGRID",
     "id": "voipgrid",
-    "description": "Firefox plugin voor klik&bel, statusupdate en wachtrij monitoring"
+    "description": "Firefox plugin voor klik&bel, statusupdate en wachtrij monitoring",
+    "permissions": {
+        "private-browsing": true
+    }
 }
