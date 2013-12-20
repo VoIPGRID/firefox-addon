@@ -20,24 +20,18 @@ $(function() {
     var search_query = '';
 
     function resize(){
-        // dump('html: ' + $('html').outerHeight() + 
-        //     ' body: ' + $('body').outerHeight() + 
-        //     ' ratio: ' +  window.devicePixelRatio + '\n');
+        dump('html: ' + $('html').outerHeight() + 
+            ' body: ' + $('body').outerHeight() + 
+            ' ratio: ' +  window.devicePixelRatio + '\n');
 
-        // var args = {
-        //     width: $('body').outerWidth(),
-        //     height: $('body').outerHeight(),
+        var args = {
+            width: $('body').outerWidth() /** window.devicePixelRatio*/,
+            height: $('body').outerHeight() /** window.devicePixelRatio*/,
 
-        //     ratio: window.devicePixelRatio
-        // }
+            ratio: window.devicePixelRatio
+        }
 
-        self.port.emit('resize', 
-        {
-            width: 360 * window.devicePixelRatio, 
-            height: $('body').height() * window.devicePixelRatio
-        });
-
-        // self.port.emit('resize', args /** window.devicePixelRatio*/);
+        self.port.emit('resize', args );
     }
 
     // always resize the panel properly when shown
