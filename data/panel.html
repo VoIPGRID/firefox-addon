@@ -10,52 +10,35 @@
 <body style="-moz-user-select: none;">
     <div class="account" id="login-section" style="display: none;">
         <form id="account-form">
-            <fieldset>
-                <table>
-                    <tr>
-                        <td>e-mailadres</td>
-                        <td>
-                            <input tabIndex="1" id="username" type="text" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>wachtwoord</td>
-                        <td>
-                            <input tabIndex="2" id="password" type="password" />
-                        </td>
-                    </tr>
-                </table>
-            </fieldset>
-            <br />
 
-            <ul class="menu" id="login">
-                <li data-link="login" >
-                    <i class="icon-signin"></i>
-                    Inloggen
-                </li>
-            </ul>
+            <label for="username">E-mailadres</label>
+            <input tabIndex="1" id="username" type="text" />
+
+            <label for="password">Wachtwoord</label>
+            <input tabIndex="2" id="password" type="password" />
+
+            <button data-link="login" id="login">
+                Inloggen
+            </button>
+
         </form>
-
-        <i class="icon-user"></i> 
-        <span id="head">Uitgelogd</span> 
     </div>
-        
+
     <div id="body">
         <div class="account">
-            <div class="pull-right">
-                <i data-link="help" class="icon-question-sign" id="help"></i>
-                
-                <i data-link="settings" class="icon-cog" id="settings"></i>
 
-                <i class="icon-remove-sign" 
-                        id="close" 
-                        style="float:right; cursor:pointer;"></i>
-            </div>
+                <div class="pull-right">
+                    <span data-link="logout" id="logout">uitloggen</span>
 
-            <div>
-                <i class="icon-signout" data-link="logout" id="logout"></i> 
-                    <span id="user-name">emily.taylor33@hasalongdomain.com</span>
-            </div>
+                    <i data-link="help" class="icon-question-sign" id="help"></i>
+
+                    <i data-link="settings" class="icon-cog" id="settings"></i>
+
+                    <i class="icon-remove-sign" id="close"></i>
+                </div>
+
+                <span id="user-name">emily.taylor33@hasalongdomain.com</span>
+
         </div>
     
         <div class="widget availability" data-opened="false">

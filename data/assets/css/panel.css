@@ -1062,17 +1062,72 @@ body {
   color: #3c3c50;
   font: 13px/1.7em 'Open Sans';
 }
-.pull-right {
-  text-align: right;
+input[type="text"],
+input[type="password"],
+input[type="search"] {
+  border: 1px solid #d5d5d5;
+  border-radius: 2px;
+  height: 32px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
 }
 div.account {
   padding: 10px;
+  line-height: 19px;
 }
 div.account i {
-  cursor: pointer;
+  display: block;
+  float: left;
   font-size: 21px;
-  margin-right: 9px;
-  margin-left: 2px;
+  margin-left: 9px;
+  margin-right: 2px;
+}
+div.account .pull-right {
+  float: right;
+  margin-top: 1px;
+}
+div.account .pull-right span,
+div.account .pull-right i {
+  cursor: pointer;
+}
+div.account #user-name {
+  overflow: hidden;
+  white-space: nowrap;
+  width: calc(100% - 140px);
+  display: inline-block;
+  text-overflow: ellipsis;
+}
+div.account #logout {
+  font-size: 11px;
+  font-weight: bold;
+  float: left;
+}
+div.account #logout:hover {
+  text-decoration: underline;
+}
+div.account #account-form label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 4px;
+}
+div.account #account-form button,
+div.account #account-form input[type="text"],
+div.account #account-form input[type="password"] {
+  width: 100%;
+  margin-bottom: 7px;
+}
+div.account #account-form button {
+  background: #3c3c50;
+  color: white;
+  border: none;
+  height: 40px;
+  display: block;
+  margin-top: 5px;
+  border-radius: 4px;
+}
+div.account #account-form button:hover {
+  background: #333344;
 }
 ul.menu {
   padding: 0;
