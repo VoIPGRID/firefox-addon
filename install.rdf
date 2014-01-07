@@ -21,8 +21,8 @@
     <em:name>VoIPGRID</em:name>
     <em:description>Firefox plugin voor klik&amp;bel, statusupdate en wachtrij monitoring</em:description>
     <em:creator>VoIPGRID</em:creator>
-    
+
     <em:optionsType>2</em:optionsType>
-    
+
   </Description>
 </RDF>

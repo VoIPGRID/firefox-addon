@@ -1,20 +1,35 @@
 {
+    "id": "voipgrid",
+    "name": "voipgrid",
+    "main": "main",
+    "version": "1.1",
+    "author": "VoIPGRID",
+    "license": "MPL 1.1/GPL 2.0/LGPL 2.1",
+    "fullName": "VoIPGRID",
+
+    "_description-in-english": "Firefox add-on for click-to-dial, status updates and queue monitoring",
+    "description": "Firefox plugin voor klik&bel, statusupdate en wachtrij monitoring",
+
     "preferences": [
         {
             "name": "platform_url",
-            "title": "Platform URL",
             "type": "string",
-            "description": "default: https://partner.voipgrid.nl/",
-            "value": "https://partner.voipgrid.nl/"
+            "description": "Standaard: https://partner.voipgrid.nl/",
+            "value": "https://partner.voipgrid.nl/",
+
+            "_title-in-english": "Platform URL",
+            "title": "Platform URL"
+        },
+        {
+            "name": "click_to_dial_enabled",
+            "type": "bool",
+            "description": "Standaard: aan",
+            "value": true,
+
+            "_title-in-english": "Show click-to-dial icons on websites",
+            "title": "Toon klik & bel iconen op websites"
         }
     ],
-    "name": "voipgrid",
-    "license": "MPL 1.1/GPL 2.0/LGPL 2.1",
-    "author": "VoIPGRID",
-    "version": "1.1",
-    "fullName": "VoIPGRID",
-    "id": "voipgrid",
-    "description": "Firefox plugin voor klik&bel, statusupdate en wachtrij monitoring",
     "permissions": {
         "private-browsing": true
     }
