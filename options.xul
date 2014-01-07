@@ -1,19 +1,19 @@
 <?xml version="1.0" ?>
 <vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  	<setting 
-  		data-jetpack-id="voipgrid@jetpack" 
-		pref="extensions.voipgrid@jetpack.platform_url" 
-		pref-name="platform_url" 
-		title="Platform URL" 
+	<setting
+		data-jetpack-id="voipgrid@jetpack"
+		pref="extensions.voipgrid@jetpack.platform_url"
+		pref-name="platform_url"
+		title="Platform URL"
 		type="string">
 			default: https://partner.voipgrid.nl/
 	</setting>
 
-	<setting 
-  		data-jetpack-id="voipgrid@jetpack" 
-		pref="extensions.voipgrid@jetpack.click_to_dial_enabled" 
-		pref-name="click_to_dial_enabled" 
-		title="Enable click-to-dial" 
+	<setting
+		data-jetpack-id="voipgrid@jetpack"
+		pref="extensions.voipgrid@jetpack.click_to_dial_enabled"
+		pref-name="click_to_dial_enabled"
+		title="Enable click-to-dial"
 		type="bool">
 			default: true
 	</setting>
