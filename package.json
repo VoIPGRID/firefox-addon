@@ -2,7 +2,7 @@
     "id": "voipgrid",
     "name": "voipgrid",
     "main": "main",
-    "version": "1.1",
+    "version": "1.3",
     "author": "VoIPGRID",
     "license": "MPL 1.1/GPL 2.0/LGPL 2.1",
     "fullName": "VoIPGRID",
