@@ -8,14 +8,14 @@
     var dateRegex = /\d{2}-\d{2}-\d{4} \d{2}/g;
 
     // only look for phone numbers in child nodes of the following tags
-    var selector = [
+    var selectors = [
         "a", "abbr", "acronym", "address", "applet", "b", "bdo", "big", "blockquote", "body", "caption", "center",
         "cite", "dd", "del", "div", "dfn", "dt", "em", "fieldset", "font", "form", "h1", "h2", "h3", "h4",
-        "h5", "h6", "i", "iframe", "ins", "kdb", "li", "nobr", "object", "p", "q", "samp", "small", "span",
+        "h5", "h6", "i", "ins", "kdb", "li", "nobr", "object", "p", "q", "samp", "small", "span",
         "strike", "s", "strong", "sub", "sup", "td", "th", "tt", "u", "var", "article", "aside", "bdi", "command",
         "datalist", "details", "embed", "figure", "figcaption", "footer", "header", "hgroup", "keygen", "mark",
         "meter", "nav", "outpuFt", "progress", "rp", "ruby", "rt", "section", "summary", "time", "wbr"
-    ].join(',');
+    ];
 
     // identify our elements with these class names
     var phoneElementClassName = 'voipgrid-phone-number';
@@ -86,12 +86,16 @@
             if(element && element.nodeType) {
                 switch(element.nodeType) {
                     case 1:
-                        for(var child = element.firstChild; child; child = child.nextSibling) {
-                            insertIcons(child);
-                        }
+                            if(selectors.indexOf(element.nodeName.toLowerCase()) != -1) {
+                                for(var child = element.firstChild; child; child = child.nextSibling) {
+                                    insertIcons(child);
+                                }
+                            }
                         break;
 
                     case 3:
+                        dateRegex.lastIndex = phoneRegex.lastIndex = 0;  // clear the 'cache', without it phoneRegex.test might return true/false of its own will
+
                         // skip previously attented elements
                         if(!$(element.parentNode).hasClass(phoneElementClassName) &&
                            phoneRegex.test(element.nodeValue)
@@ -120,7 +124,7 @@
         }
 
         // filter elements to insert icons into
-        $(element).find(selector)
+        $(element).find(selectors.join(','))
             .filter(function(index, possibleMatch) {
                 // skip previous matches
                 return !$(possibleMatch).hasClass(phoneElementClassName) &&
@@ -157,9 +161,7 @@
             // now also process mutations
             if(observer) {
                 observer.observe($('body')[0], {
-                    characterData: true,
                     childList: true,
-                    subtree: true,
                 });
             }
         }
