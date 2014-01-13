@@ -13,6 +13,7 @@
         <script src="../assets/js/panel.js"></script>
         <script src="../assets/js/widgets.js"></script>
         <script src="../../widgets/assets/js/availability.js"></script>
+        <script src="../../widgets/assets/js/contacts.js"></script>
         <script src="../../widgets/assets/js/queues.js"></script>
         <!---->
     </head>
@@ -79,6 +80,59 @@
                     </form>
                 </div>
                 <div class="unauthorized-warning hide" data-l10n-id="availabilityUnauthorizedWarning"></div>
+            </div>
+            <div class="widget contacts" data-opened="false" data-widget="contacts">
+                <div class="widget-header no-select">
+                    <h3 class="widget-title">
+                        <i class="fa fa-fw fa-group fa-vertical-align widget-icon"></i>
+                        <i class="fa fa-fw fa-spinner fa-spin fa-vertical-align busy-icon"></i>
+                        <span data-l10n-id="contactsWidgetTitle"></span>
+
+                        <form class="form form-inline search-form">
+                            <i class="fa fa-search pull-left search-button"></i>
+                            <input id="search-query" type="search" name="search" class="form-control search-query" disabled="disabled" />
+                        </form>
+                    </h3>
+                </div>
+                <div class="widget-content hide">
+                    <ul class="template hide">
+                        <li class="contact">
+                            <div class="status-icon pull-left">
+                                <i class="fa fa-phone-square"></i>
+                            </div>
+                            <div class="info">
+                                <div class="name"></div>
+                                <div class="extension"></div>
+                            </div>
+                        </li>
+                    </ul>
+                    <ul class="list">
+                    </ul>
+                    <ul class="empty-list hide">
+                        <li class="contact">
+                            <div class="status-icon pull-left">
+                                <i class="fa"></i>
+                            </div>
+                            <div class="info">
+                                <div class="name">
+                                    <span class="text" data-l10n-id="noContactsText"></span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                    <ul class="not-found-contacts hide">
+                        <li class="contact">
+                            <div class="status-icon pull-left">
+                                <i class="fa"></i>
+                            </div>
+                            <div class="info">
+                                <div class="name">
+                                    <span class="text" data-l10n-id="noContactsFoundText"></span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
             </div>
             <div class="widget queues" data-opened="false" data-widget="queues">
                 <div class="widget-header no-select">

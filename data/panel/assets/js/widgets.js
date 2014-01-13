@@ -63,6 +63,10 @@
             var widget = getWidget(widgetOrWidgetName);
             resetWidget(widget);
             $(widget).addClass('busy');
+            var isOpen = isWidgetOpen(widget);
+            if(isOpen) {
+                openWidget(widget);
+            }
         }
         self.port && self.port.on('widget.indicator.start', function(widgetName) {
             busyWidget(widgetName);
@@ -77,6 +81,10 @@
                 .removeClass('busy')
                 .removeClass('unauthorized');
             closeWidget(widget);
+            var isOpen = isWidgetOpen(widget);
+            if(isOpen) {
+                openWidget(widget);
+            }
         }
         self.port && self.port.on('widget.indicator.stop', function(widgetName) {
             resetWidget(widgetName);
