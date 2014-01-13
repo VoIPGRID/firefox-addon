@@ -161,7 +161,9 @@
             // now also process mutations
             if(observer) {
                 observer.observe($('body')[0], {
+                    characterData: true,
                     childList: true,
+                    subtree: true,
                 });
             }
         }
