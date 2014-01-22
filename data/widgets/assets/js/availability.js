@@ -65,7 +65,7 @@
                 selectedType = value[0];
                 selectedId = value[1];
             }
-            self.port.emit('availability.toggle', selectedType, selectedId);
+            self.port && self.port.emit('availability.toggle', selectedType, selectedId);
         });
 
         // change the user's destination
@@ -73,7 +73,7 @@
             var value = $(this).find('option:selected').val().split('-');
             var selectedType = value[0];
             var selectedId = value[1];
-            self.port.emit('availability.select', selectedType, selectedId);
+            self.port && self.port.emit('availability.select', selectedType, selectedId);
         });
     });
 })();
