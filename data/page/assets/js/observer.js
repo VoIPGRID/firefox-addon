@@ -85,9 +85,15 @@
             find: phoneRegex,
             replace: function(portion, match, matchIndex) {
                 // return original text if there was "no text"
-                if(!$.trim(portion.node.wholeText).length || portion.indexInNode < 0) {
+                if(!$.trim(portion.node.wholeText).length) {
                     return portion.text;
                 }
+
+                // return original text if the match is across elements
+                if(!phoneRegex.test(portion.text)) {
+                    return portion.text;
+                }
+
                 // insert the icon after the phone number
                 var newIcon = icon.clone();
                 newIcon.attr('data-number', match[0]);
@@ -98,9 +104,11 @@
                 var match = false, skip = false;
                 for(var child = element.firstChild; child; child = child.nextSibling) {
                     if(phoneRegex.test(child.nodeValue)) {
+                        phoneRegex.lastIndex = 0;
                         match = true;
                         break;
                     }
+                    phoneRegex.lastIndex = 0;
                 }
                 if(match) {
                     if(dateRegex.test(element.innerHTML)) {
