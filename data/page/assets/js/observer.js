@@ -8,14 +8,14 @@
     var dateRegex = /\d{2}-\d{2}-\d{4} \d{2}/g;
 
     // only look for phone numbers in child nodes of the following tags
-    var selectors = [
+    var selector = [
         "a", "abbr", "acronym", "address", "applet", "b", "bdo", "big", "blockquote", "body", "caption", "center",
         "cite", "dd", "del", "div", "dfn", "dt", "em", "fieldset", "font", "form", "h1", "h2", "h3", "h4",
         "h5", "h6", "i", "ins", "kdb", "li", "nobr", "object", "p", "q", "samp", "small", "span",
         "strike", "s", "strong", "sub", "sup", "td", "th", "tt", "u", "var", "article", "aside", "bdi", "command",
         "datalist", "details", "embed", "figure", "figcaption", "footer", "header", "hgroup", "keygen", "mark",
         "meter", "nav", "outpuFt", "progress", "rp", "ruby", "rt", "section", "summary", "time", "wbr"
-    ];
+    ].join(',');
 
     // identify our elements with these class names
     var phoneElementClassName = 'voipgrid-phone-number';
@@ -76,63 +76,42 @@
 
     /**
      * Find elements that match our regex for a dutch phone number and
-     * don't already have an icon next to them.
+     * don't already have an icon next to them using *findAndReplaceDOMText*.
      */
     function insertIconsIntoElement(element) {
-        /**
-         * Insert icons next to content in *element* which matches *phoneRegex*.
-         */
-        function insertIcons(element) {
-            if(element && element.nodeType) {
-                switch(element.nodeType) {
-                    case 1:
-                            if(selectors.indexOf(element.nodeName.toLowerCase()) != -1) {
-                                for(var child = element.firstChild; child; child = child.nextSibling) {
-                                    insertIcons(child);
-                                }
-                            }
-                        break;
+        stop_observer();
 
-                    case 3:
-                        dateRegex.lastIndex = phoneRegex.lastIndex = 0;  // clear the 'cache', without it phoneRegex.test might return true/false of its own will
-
-                        // skip previously attented elements
-                        if(!$(element.parentNode).hasClass(phoneElementClassName) &&
-                           phoneRegex.test(element.nodeValue)
-                        ) {
-                            // prevent adding another icon next time
-                            $(element.parentNode).addClass(phoneElementClassName);
-
-                            $(element.parentNode).html($(element.parentNode).html().replace(
-                                phoneRegex,
-                                function($0) {
-                                    // skip numbers that look like dates
-                                    if(dateRegex.test(element.nodeValue)) {
-                                        return $0;
-                                    }
-
-                                    // insert the icon after the phone number
-                                    var newIcon = icon.clone();
-                                    newIcon.attr('data-number', $0);
-                                    return $0 + $('<div>').append(newIcon).html();
-                                }
-                            ));
-                        }
-                        break;
+        findAndReplaceDOMText(element, {
+            find: phoneRegex,
+            replace: function(portion, match, matchIndex) {
+                // return original text if there was "no text"
+                if(!$.trim(portion.node.wholeText).length || portion.indexInNode < 0) {
+                    return portion.text;
                 }
+                // insert the icon after the phone number
+                var newIcon = icon.clone();
+                newIcon.attr('data-number', match[0]);
+                return $('<span>').addClass(phoneElementClassName).html(match[0] + $('<div>').append(newIcon).html())[0];
+            },
+            filterElements: function(element) {
+                // apply date filter (to already matched elements only)
+                var match = false, skip = false;
+                for(var child = element.firstChild; child; child = child.nextSibling) {
+                    if(phoneRegex.test(child.nodeValue)) {
+                        match = true;
+                        break;
+                    }
+                }
+                if(match) {
+                    if(dateRegex.test(element.innerHTML)) {
+                        skip = true;
+                    }
+                }
+                return !skip && !$(element).hasClass(phoneElementClassName);
             }
-        }
+        });
 
-        // filter elements to insert icons into
-        $(element).find(selectors.join(','))
-            .filter(function(index, possibleMatch) {
-                // skip previous matches
-                return !$(possibleMatch).hasClass(phoneElementClassName) &&
-                    $(possibleMatch).parents(phoneElementClassName).length === 0;
-            })
-            .each(function(index, element) {
-                insertIcons(element);
-            });
+        start_observer();
     }
 
     /**
@@ -143,6 +122,22 @@
             insertIconsIntoElement(mutation.target);
         });
     });
+
+    function start_observer() {
+        if(observer) {
+            observer.observe($('body')[0], {
+                characterData: true,
+                childList: true,
+                subtree: true,
+            });
+        }
+    }
+
+    function stop_observer() {
+        if(observer) {
+            observer.disconnect();
+        }
+    }
 
     /**
      * Observer: start.
@@ -159,13 +154,7 @@
             insertIconsIntoElement($('body')[0]);
 
             // now also process mutations
-            if(observer) {
-                observer.observe($('body')[0], {
-                    characterData: true,
-                    childList: true,
-                    subtree: true,
-                });
-            }
+            start_observer();
         }
     });
 
@@ -175,10 +164,8 @@
     self.port.on('page.observer.stop', function(message) {
         console.info('page.observer.stop');
 
-        if(observer) {
-            // stop processing mutations
-            observer.disconnect();
-        }
+        // stop processing mutations
+        stop_observer();
 
         // remove icons from page
         var iconElements = $('.'+phoneIconClassName);
@@ -186,7 +173,7 @@
 
         // remove our CSS class from previously identified elements containing phone numbers
         var phoneElements = $('.'+phoneElementClassName);
-        $(phoneElements).removeClass(phoneElementClassName);
+        $(phoneElements).contents().unwrap();
 
         // remove our stylesheet
         $(printStyle).remove();
