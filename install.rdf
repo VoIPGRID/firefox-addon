@@ -13,15 +13,27 @@
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
         <em:minVersion>21.0</em:minVersion>
-        <em:maxVersion>26.*</em:maxVersion>
+        <em:maxVersion>29.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
     <!-- Front End MetaData -->
     <em:name>VoIPGRID</em:name>
-    <em:description>Firefox plugin voor klik&amp;bel, statusupdate en wachtrij monitoring</em:description>
+    <em:localized>
+      <Description>
+        <em:locale>en-US</em:locale>
+        <em:description>Firefox add-on for click-to-dial, status updates and queue monitoring.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>nl-NL</em:locale>
+        <em:description>Firefox plugin voor klik&bel, statusupdate en wachtrij monitoring.</em:description>
+      </Description>
+    </em:localized>
     <em:creator>VoIPGRID</em:creator>
 
     <em:optionsType>2</em:optionsType>
+
   </Description>
 </RDF>

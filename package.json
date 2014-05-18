@@ -7,27 +7,22 @@
     "license": "MPL 1.1/GPL 2.0/LGPL 2.1",
     "fullName": "VoIPGRID",
 
-    "_description-in-english": "Firefox add-on for click-to-dial, status updates and queue monitoring",
-    "description": "Firefox plugin voor klik&bel, statusupdate en wachtrij monitoring",
+    "description": "https://bugzilla.mozilla.org/show_bug.cgi?id=661083. Replace this description with the localized description in install.rdf manually! Run cfx xpi, unzip voipgrid.xpi, edit install.rdf and re-zip.",
 
     "preferences": [
         {
-            "name": "platform_url",
             "type": "string",
-            "description": "Standaard: https://partner.voipgrid.nl/",
+            "name": "platform_url",
             "value": "https://partner.voipgrid.nl/",
-
-            "_title-in-english": "Platform URL",
-            "title": "Platform URL"
+            "title": "platform_url_title",
+            "description": "platform_url_description"
         },
         {
-            "name": "click_to_dial_enabled",
             "type": "bool",
-            "description": "Standaard: aan",
+            "name": "click_to_dial_enabled",
             "value": true,
-
-            "_title-in-english": "Show click-to-dial icons on websites",
-            "title": "Toon klik & bel iconen op websites"
+            "title": "click_to_dial_enabled_title",
+            "description": "click_to_dial_enabled_description"
         }
     ],
     "permissions": {

@@ -157,7 +157,7 @@
             loggedOutButton();
         });
 
-        // after login, show the user's email address
+        // after login, show the user's e-mail address
         self.port && self.port.on('login.success', function(user) {
             $('#user-name').text(user.email);
 

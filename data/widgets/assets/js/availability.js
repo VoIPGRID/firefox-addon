@@ -19,8 +19,9 @@
         var list = $('[name="selecteddestination"]');
         list.empty();
 
-        // 'You have no destinations at the moment.'
-        var option = $('<option value="">').text('Je hebt momenteel geen bestemmingen.');
+        // poor workaround due to the lack of a viable solution to show a localized string here:
+        // the text is copied from an attribute of the list element which is an already translated string
+        var option = $('<option value="">').text($(list).attr('data-no-available-options-text'));
         option.appendTo(list);
 
         // which suggests you're not available (based on the available data: no possible destinations)
