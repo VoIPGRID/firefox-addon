@@ -28,7 +28,7 @@
     <em:localized>
       <Description>
         <em:locale>nl-NL</em:locale>
-        <em:description>Firefox plugin voor klik&bel, statusupdate en wachtrij monitoring.</em:description>
+        <em:description>Firefox plugin voor klik&amp;bel, statusupdate en wachtrij monitoring.</em:description>
       </Description>
     </em:localized>
     <em:creator>VoIPGRID</em:creator>
