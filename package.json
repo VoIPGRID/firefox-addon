@@ -7,7 +7,7 @@
     "license": "MPL 1.1/GPL 2.0/LGPL 2.1",
     "fullName": "VoIPGRID",
 
-    "description": "https://bugzilla.mozilla.org/show_bug.cgi?id=661083. Replace this description with the localized description in install.rdf manually! Run cfx xpi, unzip voipgrid.xpi, edit install.rdf and re-zip.",
+    "description": "https://bugzilla.mozilla.org/show_bug.cgi?id=661083. Replace this description with the localized description in install.rdf manually! Run cfx xpi, unzip voipgrid.xpi, edit install.rdf and re-zip or just run ./localize_xpi.sh.",
 
     "preferences": [
         {
