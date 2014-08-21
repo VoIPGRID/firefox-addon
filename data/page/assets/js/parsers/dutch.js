@@ -1,13 +1,14 @@
 (function() {
     'use strict';
 
-    window.debug = false;
-    // debug = true;
+    var debug = false;
 
     if(window.parsers === undefined) window.parsers = [];
 
-    // scan data for phone numbers matching the dutch format
-    // and return the node in the DOM
+    /**
+     * Scan data for phone numbers matching the dutch format
+     * and return the node in the DOM.
+     */
     window.parsers.push(['NL', function() {
         var matches;
         var input;
@@ -21,6 +22,7 @@
         var nbsp = '(?:&nbsp;)';
         var nextline = '[\\r\\n\\f]';
 
+        // functions which process `buffer`
         var actions = {
             ignore: function() {
                 if(debug) console.log('ignore',  '"' + buffer + '"', '"' + result + '"');
@@ -56,32 +58,33 @@
                     // test if we're starting mid-string and allow some cases
                     if(charsInFront.length && !(new RegExp(whitespace + '|' + nextline + '|[(,\'"]').test(charsInFront))) {
                         if(charsInFront.slice(-1) == ';') {
-                            // disallow ;
+                            // disallow `;`
                             ignore = true;
                             if(debug) console.log(';;; > ignore');
                         } else if(charsInFront.slice(-1) == '.') {
-                            // allow . if part of t.|tel.
+                            // allow `.` if part of `t.` or `tel.`
                             if(input.substring((posInFront - 2), (posInFront + 1)).toLowerCase().trim() != 't.' &&
                                     input.substring((posInFront - 4), (posInFront + 1)).toLowerCase().trim() != 'tel.') {
                                 ignore = true;
                                 if(debug) console.log('... > ignore');
                             }
                         } else if(charsInFront.slice(-1) == ':') {
-                            // allow : as long there is not an isolated F in front of it
+                            // allow `:` as long there is not an isolated `f` or `fax` in front of it
                             if(input.substring((posInFront - 2), (posInFront + 1)).toLowerCase().trim() == 'f:' ||
                                     input.substring((posInFront - 4), (posInFront + 1)).toLowerCase().trim() == 'fax:') {
                                 if(debug) console.log('::: > ignore');
                                 ignore = true;
                             }
                         } else {
-                            if(input.substring((posInFront - 1), (posInFront + 1)).trim().toLowerCase() != 't') {
+                            if(input.substring((posInFront - 1), (posInFront + 1)).trim().toLowerCase() == 'f' ||
+                                    input.substring((posInFront - 3), (posInFront + 1)).trim().toLowerCase() == 'fax') {
                                 ignore = true;
                                 if(debug) console.log('    > ignore', '"' + input.substring((posInFront - 10), (posInFront + 1)) + '"');
                             }
                         }
                     } else {
                         if(kept == '0') {
-                            // prevent matching START on the 0 in: "F. +31(0) xxx"
+                            // prevent matching START on the `0` in `F. +31(0) xxx`
                             if(input.substring((posInFront - 1), (posInFront + 1)).slice(-1) == '(' &&
                                     input.substring((posInFront + 2), (posInFront + 4)).slice(0, 1) == ')') {
                                 ignore = true;
@@ -96,25 +99,26 @@
                         // has some significant similarities with the code above, but slightly different!!
                         if(charsInFront.length && !(new RegExp(whitespace + '|' + nextline + '|[(,\'"]').test(charsInFront))) {
                             if(charsInFront.slice(-1) == ';') {
-                                // disallow ;
+                                // disallow `;`
                                 ignore = true;
                                 if(debug) console.log(';;; > ignore');
                             } else if(charsInFront.slice(-1) == '.') {
-                                // allow . if part of t.|tel.
+                                // allow `.` if part of `t.` or `tel.`
                                 if(input.substring((posInFront - 2), (posInFront + 1)).toLowerCase().trim() != 't.' &&
                                         input.substring((posInFront - 4), (posInFront + 1)).toLowerCase().trim() != 'tel.') {
                                     ignore = true;
                                     if(debug) console.log('... > ignore');
                                 }
                             } else if(charsInFront.slice(-1) == ':') {
-                                // allow : as long there is not an isolated F in front of it
+                                // allow `:` as long there is not an isolated `f` or `fax` in front of it
                                 if(input.substring((posInFront - 2), (posInFront + 1)).toLowerCase().trim() == 'f:' ||
                                         input.substring((posInFront - 4), (posInFront + 1)).toLowerCase().trim() == 'fax:') {
                                     if(debug) console.log('::: > ignore');
                                     ignore = true;
                                 }
                             } else {
-                                if(input.substring((posInFront - 1), (posInFront + 1)).trim().toLowerCase() == 'f') {
+                                if(input.substring((posInFront - 1), (posInFront + 1)).trim().toLowerCase() == 'f' ||
+                                        input.substring((posInFront - 3), (posInFront + 1)).trim().toLowerCase() == 'fax') {
                                     ignore = true;
                                     if(debug) console.log('    > ignore', '"' + input.substring((posInFront - 10), (posInFront + 1)) + '"');
                                 } else {
@@ -195,7 +199,7 @@
                             }
                         } else {
                             if(kept == '0') {
-                                // prevent matching START on the 0 in: "F. &nbsp;+31(0) xxx"
+                                // prevent matching START on the 0 in `F. &nbsp;+31(0) xxx`
                                 if(input.substring((posInFront - 1), (posInFront + 1)).slice(-1) == '(' &&
                                         input.substring((posInFront + 2), (posInFront + 4)).slice(0, 1) == ')') {
                                     ignore = true;
@@ -294,7 +298,7 @@
                     if(ruleMatched) {
                         // a new match can be found ahead, end here
                         if(valid) {
-                            // do no pass 'kept' to prevent repeating discarding it
+                            // do no pass `kept` to prevent repeating discarding it
                             actions.end();
                         } else {
                             actions.reset();
@@ -324,10 +328,10 @@
 
         var state = function() {
             // states used are
-            // START
-            // INTERNATIONAL
-            // AREA
-            // LINE
+            // - START
+            // - INTERNATIONAL
+            // - AREA
+            // - LINE
             var states = [];
 
             var set = function(state) {
@@ -373,7 +377,6 @@
             pattern: nextline, action: actions.end, length: 1,
         };
         rules[13] = {
-            // pattern: '^\\b|' + whitespace + nextline + '|$', action: actions.end, length: 1,
             pattern: '^\\b|' + whitespace + nextline + '|' + nbsp + '|$', action: actions.end, length: 6,
         };
 
@@ -389,8 +392,6 @@
             state: 'INTERNATIONAL'
         };
         rules[3] = {
-            // pattern: '^00',
-            // pattern: '\\b00',
             pattern: '(^|\\b[\\p{P}|' + whitespace + '|' + nextline + '])00',
             action: actions.keep, length: 2,
             state: 'INTERNATIONAL'
@@ -401,18 +402,15 @@
             state: 'AREA'
         };
 
-        // optional (0) behind international notation
+        // optional `(0)` behind international notation
         rules[5] = {
             pattern: '^(\\((' + whitespace + '|' + nbsp + ')?0(' + whitespace + '|' + nbsp + ')?\\))',
-            // action: actions.ignore, length: 5,
             action: actions.ignore, length: 15,
             state: 'AREA'
         };
 
         // national notation
         rules[6] = {
-            // pattern: '^0',
-            // pattern: '\\b0',
             pattern: '(^|\\b[\\p{P}|' + whitespace + '|' + nextline + '])0',
             action: actions.keep, length: 1,
             state: 'AREA'
@@ -432,26 +430,22 @@
         // whitespace: error out on two next to each other
         rules[8] = {
             pattern: '^((' + whitespace + '|' + nbsp + ')){2}',
-            // action: actions.end, length: 2,
             action: actions.end, length: 7,
         };
         // whitespace: allow just one
         rules[9] = {
             pattern: '^((' + whitespace + '|' + nbsp + ')){1}',
-            // action: actions.end_or_ignore, length: 1,
             action: actions.end_or_ignore, length: 6,
         };
         // parenthesis: have at least 1 digit between them
         rules[10] = {
             pattern: '^(\\((' + whitespace + '|' + nbsp + ')?\\d{1,})',
             filter: '\\s',
-            // action: actions.keep, length: 3,
             action: actions.keep, length: 8,
         };
         rules[11] = {
             pattern: '^((' + whitespace + '|' + nbsp + ')?\\d{1,}\\)',
             filter: '\\s',
-            // action: actions.keep, length: 3,
             action: actions.keep, length: 8,
         };
         // hyphen
@@ -467,11 +461,17 @@
             'LINE': [7, 1, 8, 9, 10, 12, 5, 13, 0],
         };
 
+        /**
+         * Lookahead using a separate pos-variable.
+         */
         var peek = function(size) {
             peekpos += size;
             return input.substring(peekpos - size, peekpos);
         };
 
+        /**
+         * Find phone number matches in `text`.
+         */
         var parse = function(text) {
             matches = [];
 
@@ -532,7 +532,7 @@
                         // clear buffer
                         buffer = '';
 
-                        // change state if set
+                        // change state if the rule has a new state
                         if(rule.state !== undefined) {
                             if(switchState) {
                                 state.set(rule.state);
@@ -567,38 +567,34 @@
             var matches = new RegExp('^(?:(?:(?:\\+|00)31)|0)(.*)').exec(result);
             if(!matches) {
                 // the number
-                // - doesn't start with ((+|00)31|0), or
+                // - doesn't start with `((+|00)31|0)`, or
                 // - has no trailing characters, or
                 // - has no trailing digits
                 if(debug) console.log('invalid: "' + result + '" not ((+|00)31|0)\\d+');
-
                 return false;
             }
 
-            // everything behind ((+|00)31|0)
+            // everything behind `((+|00)31|0)`
             var line_number = matches[1];
-            // just the digits behind ((+|00)31|0)
+            // just the digits behind `((+|00)31|0)`
             var just_digits = line_number.replace(new RegExp('[^\\d]', 'g'), '');
 
-            // numbers with 079 are not callable numbers, but used for data
+            // numbers with `079` are not callable numbers, but used for data
             if(just_digits.substring(0, 2) == '79') {
                 if(debug) console.log('invalid: data number (079xxxxxxx)');
-
                 return false;
             }
 
-            // there shouldn't be a 00 in the area code: +31005xxxxxx or +31500xxxxxx
-            // but allow 0800, 0900
+            // there shouldn't be a `00` in the area code: `+31005xxxxxx` or `+31500xxxxxx`
+            // but allow `0800`, `0900`
             if(new RegExp('^00|[^89]00').test(just_digits.substring(0, 3))) {
                 if(debug) console.log('invalid: impossbile area code behind ((+|00)31|0)');
-
                 return false;
             }
 
-            // check for characters other than '(', ')', '-'
+            // check for characters other than `(`, `)`, `-`
             if(new RegExp('[^\\d\\-\\(\\)]').test(line_number)) {
                 if(debug) console.log('invalid: unwanted characters behind ((+|00)31|0)');
-
                 return false;
             }
 
@@ -612,11 +608,10 @@
             if(hyphens.length == 1) {
                 if(hyphens[0] < 1 || hyphens[0] > 3) {
                     if(debug) console.log('invalid: wrong hyphen position');
-
                     return false;
                 }
             } else if(hyphens.length == 2) {
-                    if(debug) console.log('invalid: too many hyphens');
+                if(debug) console.log('invalid: too many hyphens');
                 return false;
             }
 
@@ -642,7 +637,7 @@
 
                     return just_digits.length == 7 || just_digits.length == 10;
                 } else if(!new RegExp('^8([24578]|00)').test(just_digits)) {
-                    // 08x service number must be 08([24578]|00)
+                    // 08x service number must be `08([24578]|00)`
                     return false;
                 }
             } else if(just_digits.substring(0, 1) == '9') {
@@ -651,7 +646,7 @@
 
                     return just_digits.length == 7 || just_digits.length == 10;
                 } else if(!new RegExp('^91').test(just_digits)) {
-                    // 09x service number must be 09(1|00|06|09)
+                    // 09x service number must be `09(1|00|06|09)`
                     return false;
                 }
             }
