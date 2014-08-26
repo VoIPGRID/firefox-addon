@@ -28,7 +28,9 @@
         // run once when DOM ready
         window.resize();
 
-        // show/hide the login form
+        /**
+         * Show/hide the login form.
+         */
         function showLoginForm() {
             $('.login-section').removeClass('hide');
 
@@ -43,7 +45,9 @@
             $('.login-section').addClass('hide');
         }
 
-        // show/hide the panel's content
+        /**
+         * Show/hide the panel's content.
+         */
         function showPanel() {
             $('.container').removeClass('hide');
         }
@@ -51,7 +55,9 @@
             $('.container').addClass('hide');
         }
 
-        // capture keys in login form
+        /**
+         * Capture keys in login form.
+         */
         $('.login-form :input').keydown(function(e) {
             switch(e.which) {
                 // cycle through proper fields with tab
@@ -82,7 +88,9 @@
             }
         });
 
-        // attempt to login
+        /**
+         * Attempt to login.
+         */
         function login() {
             // login when form is not empty
             if($('#username').val().trim().length && $('#password').val().length) {
@@ -90,7 +98,9 @@
             }
         }
 
-        // login with the button
+        /**
+         * Login with the button.
+         */
         $('.login-button').click(function() {
             if($('.login-button').hasClass('temporary-text')) {
                 resetButton();
@@ -99,7 +109,9 @@
             }
         });
 
-        // when logging in, display an indicator
+        /**
+         * When logging in, display an indicator.
+         */
         function busyLoginButton() {
             var button = $('.login-button');
             $(button).data('reset-text', $(button).html());
@@ -112,7 +124,9 @@
             busyLoginButton();
         });
 
-        // reset the login indicator
+        /**
+         * Reset the login indicator.
+         */
         function resetButton() {
             var button = $('.login-button');
             $(button)
@@ -127,7 +141,9 @@
             resetButton();
         });
 
-        // show an error on login fail
+        /**
+         * Show an error on login fail.
+         */
         function failedLoginButton() {
             var button = $('.login-button');
             $(button)
@@ -140,7 +156,9 @@
             failedLoginButton();
         });
 
-        // show a message on logout
+        /**
+         * Show a message on logout.
+         */
         function loggedOutButton() {
             var button = $('.login-button');
             $(button)
@@ -167,12 +185,27 @@
             window.resize();
         });
 
-        // capture icon clicks in the plugin container
+        // spin refresh icon while reloading widgets
+        self.port && self.port.on('mainpanel.refresh.start', function() {
+            $('#refresh').addClass('fa-spin');
+        });
+        self.port && self.port.on('mainpanel.refresh.stop', function() {
+            setTimeout(function() {
+                $('#refresh').removeClass('fa-spin');
+            }, 200);
+        });
+
+        /**
+         * Capture icon clicks in the plugin container.
+         */
         $('#logout').click(function(event) {
             self.port && self.port.emit('logout.attempt');
         });
         $('#help').click(function(event) {
             self.port && self.port.emit('help');
+        });
+        $('#refresh').click(function(event) {
+            self.port && self.port.emit('refresh');
         });
         $('#settings').click(function(event) {
             self.port && self.port.emit('settings');
