@@ -62,9 +62,9 @@
                             ignore = true;
                             if(debug) console.log(';;; > ignore');
                         } else if(charsInFront.slice(-1) == '.') {
-                            // allow `.` if part of `t.` or `tel.`
-                            if(input.substring((posInFront - 2), (posInFront + 1)).toLowerCase().trim() != 't.' &&
-                                    input.substring((posInFront - 4), (posInFront + 1)).toLowerCase().trim() != 'tel.') {
+                            // allow `.` as long there is not an isolated `f` or `fax` in front of it
+                            if(input.substring((posInFront - 2), (posInFront + 1)).toLowerCase().trim() == 'f.' ||
+                                    input.substring((posInFront - 4), (posInFront + 1)).toLowerCase().trim() == 'fax.') {
                                 ignore = true;
                                 if(debug) console.log('... > ignore');
                             }
@@ -103,9 +103,9 @@
                                 ignore = true;
                                 if(debug) console.log(';;; > ignore');
                             } else if(charsInFront.slice(-1) == '.') {
-                                // allow `.` if part of `t.` or `tel.`
-                                if(input.substring((posInFront - 2), (posInFront + 1)).toLowerCase().trim() != 't.' &&
-                                        input.substring((posInFront - 4), (posInFront + 1)).toLowerCase().trim() != 'tel.') {
+                                // allow `.` as long there is not an isolated `f` or `fax` in front of it
+                                if(input.substring((posInFront - 2), (posInFront + 1)).toLowerCase().trim() == 'f.' ||
+                                        input.substring((posInFront - 4), (posInFront + 1)).toLowerCase().trim() == 'fax.') {
                                     ignore = true;
                                     if(debug) console.log('... > ignore');
                                 }
@@ -217,6 +217,10 @@
 
                 // not all dashes look the same
                 if(new RegExp(rules[12].pattern).test(kept)) {
+                    // do `actions.end()` when encountering a second `-`
+                    if(result.search(rules[12].pattern) !== -1) {
+                        return actions.end(buffer);
+                    }
                     kept = '-';
                     if(debug) console.error('force replace matched dash with a standard dash');
                 }
