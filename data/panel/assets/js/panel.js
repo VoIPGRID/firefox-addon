@@ -22,6 +22,10 @@
     // always force a resize for this event
     self.port && self.port.on('mainpanel.onshow', function() {
         resize();
+
+        if($('.login-section').length) {
+            $('.login-form :input:visible:first').focus();
+        }
     });
 
     $(function($) {
