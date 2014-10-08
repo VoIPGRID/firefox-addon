@@ -1,26 +1,30 @@
---- install.rdf	2014-07-05 16:18:22.000000000 +0200
-+++ install-localized.rdf	2014-07-05 16:21:56.176424545 +0200
-@@ -19,10 +19,21 @@
+--- .patchdir/install.rdf	2014-10-08 15:43:48.000000000 +0200
++++ working_install.rdf	2014-10-08 15:42:44.712582493 +0200
+@@ -19,10 +19,22 @@
  
      <!-- Front End MetaData -->
      <em:name>VoIPGRID</em:name>
 -    <em:description>https://bugzilla.mozilla.org/show_bug.cgi?id=661083. Replace this description with the localized description in install.rdf manually! Run cfx xpi, unzip voipgrid.xpi, edit install.rdf and re-zip or just run ./localize_xpi.sh.</em:description>
+-    <em:creator>VoIPGRID</em:creator>
+-    
 +    <em:localized>
 +      <Description>
 +        <em:locale>en-US</em:locale>
++        <em:name>VoIPGRID</em:name>
 +        <em:description>Firefox add-on for click-to-dial, status updates and queue monitoring.</em:description>
 +      </Description>
 +    </em:localized>
 +    <em:localized>
 +      <Description>
 +        <em:locale>nl-NL</em:locale>
++        <em:name>VoIPGRID</em:name>
 +        <em:description>Firefox plugin voor klik&amp;bel, statusupdate en wachtrij monitoring.</em:description>
 +      </Description>
 +    </em:localized>
-     <em:creator>VoIPGRID</em:creator>
-     
++
      <em:optionsType>2</em:optionsType>
-     
+-    
++
    </Description>
 -</RDF>
 \ No newline at end of file
