@@ -25,6 +25,7 @@
             "description": "click_to_dial_enabled_description"
         }
     ],
+    "dependencies": ["toolbarwidget"],
     "permissions": {
         "private-browsing": true
     }

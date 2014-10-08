@@ -6,16 +6,6 @@
  "main": "main",
  "mainPath": "voipgrid/main",
  "manifest": {
-  "voipgrid/listen": {
-   "docsSHA256": null,
-   "jsSHA256": "74057caf6a837e6c8a3e8e73762b1bc08e69e6e087bee5401580a9249a34701c",
-   "moduleName": "listen",
-   "packageName": "voipgrid",
-   "requirements": {
-    "unload+": "voipgrid/unload+"
-   },
-   "sectionName": "lib"
-  },
   "voipgrid/main": {
    "docsSHA256": "11b0c5beab0c68c2f6ef1b3d28bbad0d249a651d9cf1a986b3ba3847eb052796",
    "jsSHA256": "b03ceb2584d3785b61976f6e7171b5ac77eb6e8d9401f1ee1e945d1a08725e55",
@@ -24,44 +14,22 @@
    "requirements": {
     "api-utils/base64": "sdk/base64",
     "context-menu": "sdk/context-menu",
+    "l10n": "sdk/l10n",
     "notifications": "sdk/notifications",
     "page-mod": "sdk/page-mod",
     "panel": "sdk/panel",
+    "passwords": "sdk/passwords",
     "request": "sdk/request",
     "runtime": "sdk/system/runtime",
     "selection": "sdk/selection",
     "self": "sdk/self",
     "simple-prefs": "sdk/simple-prefs",
     "simple-storage": "sdk/simple-storage",
+    "system" : "sdk/system",
     "tabs": "sdk/tabs",
     "timers": "sdk/timers",
-    "toolbarbutton": "voipgrid/toolbarbutton",
-    "passwords": "sdk/passwords",
-    "promises": "sdk/core/promise",
     "utils" : "sdk/window/utils",
-    "system" : "sdk/system"
-   },
-   "sectionName": "lib"
-  },
-  "voipgrid/toolbarbutton": {
-   "docsSHA256": null,
-   "jsSHA256": "48f0402bd6a36616b839633d5b356c5ea1c2986bf8455b55afc73fee58906492",
-   "moduleName": "toolbarbutton",
-   "packageName": "voipgrid",
-   "requirements": {
-    "listen": "voipgrid/listen",
-    "unload+": "voipgrid/unload+",
-    "window-utils": "sdk/deprecated/window-utils"
-   },
-   "sectionName": "lib"
-  },
-  "voipgrid/unload+": {
-   "docsSHA256": null,
-   "jsSHA256": "57af1a1c810b91ad2d2af36fa108a5f116fce27225da94745a26a3e4a87f5e6a",
-   "moduleName": "unload+",
-   "packageName": "voipgrid",
-   "requirements": {
-    "unload": "sdk/system/unload"
+    "windows" : "sdk/windows"
    },
    "sectionName": "lib"
   }
