@@ -14,6 +14,7 @@
         var input;
         var buffer;
         var result;
+        var result_raw;
         var pos = 0;
         var peekpos = 0;
         var start = -1;
@@ -44,7 +45,7 @@
                     // shift behindpos if &nbsp; is adjacent
                     if(charsInFront.trim() == ';' && input.substring((posInFront - 5), (posInFront + 1)) == '&nbsp;') {
                         posInFront -= 6;
-                        charsInFront = input[posInFront];
+                        charsInFront = input[posInFront] || '';
                         if(!charsInFront.trim().length) {
                             // extend charsInFront if it's just a space
                             posInFront -= 1;
@@ -56,30 +57,39 @@
                     var ignore = false;
 
                     // test if we're starting mid-string and allow some cases
-                    if(charsInFront.length && !(new RegExp(whitespace + '|' + nextline + '|[(,\'"]').test(charsInFront))) {
+                    if(charsInFront.length && !(new RegExp(whitespace + '|' + nextline + '|[(,\'"]|[^\\d+]').test(charsInFront))) {
                         if(charsInFront.slice(-1) == ';') {
-                            // disallow `;`
-                            ignore = true;
-                            if(debug) console.log(';;; > ignore');
+                            // allow `;` as long there is not an isolated `f` or `fax` in front of it
+                            if(input.substring((posInFront - 2), (posInFront + 1)).toLowerCase().trim() == 'f;' ||
+                                    input.substring((posInFront - 4), (posInFront + 1)).toLowerCase().trim() == 'fax;') {
+                                ignore = true;
+                                if(debug) console.log(';;; > ignore');
+                            }
                         } else if(charsInFront.slice(-1) == '.') {
                             // allow `.` as long there is not an isolated `f` or `fax` in front of it
                             if(input.substring((posInFront - 2), (posInFront + 1)).toLowerCase().trim() == 'f.' ||
                                     input.substring((posInFront - 4), (posInFront + 1)).toLowerCase().trim() == 'fax.') {
                                 ignore = true;
-                                if(debug) console.log('... > ignore');
+                                if(debug) console.log('... > ignore (1)');
+                            } else if (new RegExp('\\d+').test(input.substring((posInFront - 2), posInFront))) {
+                                ignore = true;
+                                if(debug) console.log('... > ignore (2)');
                             }
                         } else if(charsInFront.slice(-1) == ':') {
                             // allow `:` as long there is not an isolated `f` or `fax` in front of it
                             if(input.substring((posInFront - 2), (posInFront + 1)).toLowerCase().trim() == 'f:' ||
                                     input.substring((posInFront - 4), (posInFront + 1)).toLowerCase().trim() == 'fax:') {
-                                if(debug) console.log('::: > ignore');
                                 ignore = true;
+                                if(debug) console.log('::: > ignore');
                             }
                         } else {
                             if(input.substring((posInFront - 1), (posInFront + 1)).trim().toLowerCase() == 'f' ||
                                     input.substring((posInFront - 3), (posInFront + 1)).trim().toLowerCase() == 'fax') {
                                 ignore = true;
-                                if(debug) console.log('    > ignore', '"' + input.substring((posInFront - 10), (posInFront + 1)) + '"');
+                                if(debug) console.log('    > ignore (1)');
+                            } else if (new RegExp('\\d+').test(charsInFront)) {
+                                ignore = true;
+                                if(debug) console.log('    > ignore (2)');
                             }
                         }
                     } else {
@@ -88,6 +98,14 @@
                             if(input.substring((posInFront - 1), (posInFront + 1)).slice(-1) == '(' &&
                                     input.substring((posInFront + 2), (posInFront + 4)).slice(0, 1) == ')') {
                                 ignore = true;
+                                if(debug) console.log('ignoring (1)');
+                            } else if(charsInFront.trim().length) {
+                                if(input.substring((posInFront + 1), (posInFront + 2)) != ' ' && input.substring((posInFront + 1), (posInFront + 7)) != '&nbsp;') {
+                                    if(new RegExp('[a-zA-Z]').test(input.substring(posInFront, (posInFront + 2)))) {
+                                        ignore = true;
+                                        if(debug) console.log('ignoring (2)');
+                                    }
+                                }
                             }
                         }
                     }
@@ -99,22 +117,28 @@
                         // has some significant similarities with the code above, but slightly different!!
                         if(charsInFront.length && !(new RegExp(whitespace + '|' + nextline + '|[(,\'"]').test(charsInFront))) {
                             if(charsInFront.slice(-1) == ';') {
-                                // disallow `;`
-                                ignore = true;
-                                if(debug) console.log(';;; > ignore');
+                                // allow `;` as long there is not an isolated `f` or `fax` in front of it
+                                if(input.substring((posInFront - 2), (posInFront + 1)).toLowerCase().trim() == 'f;' ||
+                                        input.substring((posInFront - 4), (posInFront + 1)).toLowerCase().trim() == 'fax;') {
+                                    ignore = true;
+                                    if(debug) console.log(';;; > ignore');
+                                }
                             } else if(charsInFront.slice(-1) == '.') {
                                 // allow `.` as long there is not an isolated `f` or `fax` in front of it
                                 if(input.substring((posInFront - 2), (posInFront + 1)).toLowerCase().trim() == 'f.' ||
                                         input.substring((posInFront - 4), (posInFront + 1)).toLowerCase().trim() == 'fax.') {
                                     ignore = true;
-                                    if(debug) console.log('... > ignore');
+                                    if(debug) console.log('... > ignore (1)');
+                                } else if (new RegExp('\\d+').test(input.substring((posInFront - 2), (posInFront)))) {
+                                    ignore = true;
+                                    if(debug) console.log('... > ignore (2)');
                                 }
                             } else if(charsInFront.slice(-1) == ':') {
                                 // allow `:` as long there is not an isolated `f` or `fax` in front of it
                                 if(input.substring((posInFront - 2), (posInFront + 1)).toLowerCase().trim() == 'f:' ||
                                         input.substring((posInFront - 4), (posInFront + 1)).toLowerCase().trim() == 'fax:') {
-                                    if(debug) console.log('::: > ignore');
                                     ignore = true;
+                                    if(debug) console.log('::: > ignore');
                                 }
                             } else {
                                 if(input.substring((posInFront - 1), (posInFront + 1)).trim().toLowerCase() == 'f' ||
@@ -203,6 +227,7 @@
                                 if(input.substring((posInFront - 1), (posInFront + 1)).slice(-1) == '(' &&
                                         input.substring((posInFront + 2), (posInFront + 4)).slice(0, 1) == ')') {
                                     ignore = true;
+                                if (debug) console.log('ignoring (3)');
                                 }
                             }
                         }
@@ -317,7 +342,7 @@
                 buffer = startbuffer;
             },
             reset: function(kept) {
-                if(debug) console.log('reset on', '"' + buffer + '"', pos, peekpos, ', result so far:', '"' + result + '"');
+                if(debug) console.log('reset on', '"' + buffer + '"', pos, peekpos, ', result so far:', '"' + result + '", raw: "' + result_raw + '"');
 
                 // re-evaluate from the same position with initial state
                 peekpos = pos;
@@ -326,6 +351,7 @@
                 state.reset();
                 buffer = '';
                 result = '';
+                result_raw = '';
                 start = -1;
             }
         };
@@ -478,9 +504,21 @@
          */
         var parse = function(text) {
             matches = [];
+            // very crude early fails:
+
+            // 1) we need at least 8 digits
+            var digits = text.match(/\d/g);
+            if(digits === null || digits.length < 8) {
+                return matches;
+            } else {
+                // 2) we need at least two consecutive integers!
+                if(!new RegExp(/\d{2,}/g).test(text)) {
+                    return matches;
+                }
+            }
 
             input = text;
-            result = buffer = '';
+            result = result_raw = buffer = '';
             state.set('START');
 
             for(; pos < input.length;) {
@@ -555,6 +593,9 @@
                 if(pos == startpos) {
                     pos++;
                 }
+                // because a skip can happen, keep track of everything for
+                // proper validation later on
+                result_raw += input.substring(startpos, pos);
             }
 
             // validate whatever is in the buffer after finished looping
@@ -578,14 +619,28 @@
                 return false;
             }
 
+            // sanity check: are there any unwanted characters we kept because of skipping ?
+            var just_text = $('<span>').html(result_raw).text();
+
+            // find first digit
+            var pos_digit = just_text.search(/\d/g);
+            if(pos_digit != -1) {
+                // validate just_text from pos_digit because prefixes are already validated
+                just_text = just_text.substring(pos_digit);
+            }
+            if(new RegExp('[^\\+\\d\\(\\)\\-(\\xA0\\x20\\t)]').test(just_text)) {
+                if(debug) console.log('invalid: unwanted characters in raw result: "' + just_text + '"');
+                return false;
+            }
+
             // everything behind `((+|00)31|0)`
             var line_number = matches[1];
             // just the digits behind `((+|00)31|0)`
             var just_digits = line_number.replace(new RegExp('[^\\d]', 'g'), '');
 
-            // numbers with `079` are not callable numbers, but used for data
-            if(just_digits.substring(0, 2) == '79') {
-                if(debug) console.log('invalid: data number (079xxxxxxx)');
+            // numbers with `097` are not callable numbers, but used for machine-to-machine
+            if(new RegExp('^97').test(just_digits.substring(0, 3))) {
+                if(debug) console.log('invalid: data number (097xxxxxx)');
                 return false;
             }
 
