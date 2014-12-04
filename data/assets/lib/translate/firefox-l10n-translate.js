@@ -14,7 +14,7 @@
      * translation will come in through the event 'translated'.
      */
     window.translate = function(messageID, options) {
-        self.port && self.port.emit('translate', messageID, options);
+        self.port.emit('translate', messageID, options);
     };
 
     self.port.on('translated', function(messageID, options, translation) {

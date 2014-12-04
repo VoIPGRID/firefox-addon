@@ -7,18 +7,18 @@
     };
 
     $(function($) {
-        self.port && self.port.on('queue.reset', function() {
+        self.port.on('queue.reset', function() {
             var list = $('.queues .list');
             list.empty();
             $('.queues .empty-list').addClass('hide');
         });
 
-        self.port && self.port.on('queue.empty', function() {
+        self.port.on('queue.empty', function() {
             $('.queues .empty-list').removeClass('hide');
         });
 
         // fill the queue list
-        self.port && self.port.on('queue.fill', function(queues, selectedQueue) {
+        self.port.on('queue.fill', function(queues, selectedQueue) {
             $('.queues .empty-list').addClass('hide');
 
             if(cache.queue.list == queues && cache.queue.selected == selectedQueue) {
@@ -73,11 +73,11 @@
             }
 
             cache.queue.selected = queueId;
-            self.port && self.port.emit('queue.select', queueId);
+            self.port.emit('queue.select', queueId);
         });
 
         // update the size for a queue
-        self.port && self.port.on('queue.size', function(id, size) {
+        self.port.on('queue.size', function(id, size) {
             if(isNaN(size)) {
                 size = '?';  // queue size is not available
             }

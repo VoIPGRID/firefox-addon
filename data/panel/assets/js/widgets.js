@@ -10,7 +10,7 @@
             if(widgetOrWidgetName instanceof jQuery) {
                 return widgetOrWidgetName;
             }
-            return $('.widget.' + widgetOrWidgetName);
+            return $('.container:not(.static) .widget.' + widgetOrWidgetName);
         }
 
         /**
@@ -40,7 +40,7 @@
             }
 
         }
-        self.port && self.port.on('widget.open', function(widgetName) {
+        self.port.on('widget.open', function(widgetName) {
             openWidget(widgetName);
         });
         function closeWidget(widgetOrWidgetName) {
@@ -52,7 +52,7 @@
                 window.resize();
             });
         }
-        self.port && self.port.on('widget.close', function(widgetName) {
+        self.port.on('widget.close', function(widgetName) {
             closeWidget(widgetName);
         });
 
@@ -61,14 +61,14 @@
          */
         function busyWidget(widgetOrWidgetName) {
             var widget = getWidget(widgetOrWidgetName);
+            var isOpen = isWidgetOpen(widget);
             resetWidget(widget);
             $(widget).addClass('busy');
-            var isOpen = isWidgetOpen(widget);
             if(isOpen) {
                 openWidget(widget);
             }
         }
-        self.port && self.port.on('widget.indicator.start', function(widgetName) {
+        self.port.on('widget.indicator.start', function(widgetName) {
             busyWidget(widgetName);
         });
 
@@ -80,13 +80,13 @@
             $(widget)
                 .removeClass('busy')
                 .removeClass('unauthorized');
-            closeWidget(widget);
             var isOpen = isWidgetOpen(widget);
+            closeWidget(widget);
             if(isOpen) {
                 openWidget(widget);
             }
         }
-        self.port && self.port.on('widget.indicator.stop', function(widgetName) {
+        self.port.on('widget.indicator.stop', function(widgetName) {
             resetWidget(widgetName);
         });
 
@@ -98,7 +98,7 @@
             resetWidget(widget);
             widget.addClass('unauthorized');
         }
-        self.port && self.port.on('widget.unauthorized', function(widgetName) {
+        self.port.on('widget.unauthorized', function(widgetName) {
             unauthorizeWidget(widgetName);
         });
 
@@ -106,15 +106,15 @@
          * Open/close the widget's content when clicking its header
          * (except when it's busy).
          */
-        $('.container').on('click', '.widget:not(.busy) .widget-header', function(e) {
+        $('.container:not(.static)').on('click', '.widget:not(.busy) .widget-header', function(e) {
             var widget = $(this).closest('[data-opened]');
             if(isWidgetOpen(widget)) {
                 if(!$(e.target).is(':input')) {
-                    self.port && self.port.emit('widget.close', $(widget).data('widget'));
+                    self.port.emit('widget.close', $(widget).data('widget'));
                     closeWidget(widget);
                 }
             } else {
-                self.port && self.port.emit('widget.open', $(widget).data('widget'));
+                self.port.emit('widget.open', $(widget).data('widget'));
                 openWidget(widget);
             }
         });

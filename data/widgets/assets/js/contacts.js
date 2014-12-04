@@ -1,51 +1,88 @@
 (function() {
     'use strict';
 
-    window.cache['contacts'] = {
-        'list': [],
-    };
-
     var searchQuery = '',
-        phoneAccounts = [],
-        subscribedTo = {};
+        sipConfig;
 
     var blink = function() {
        $('.status-icon.ringing')
         .toggleClass('available')
         .toggleClass('busy');
     };
-    setInterval(blink, 300);
+    setInterval(blink, 400);
+
+    var fade = function() {
+        var icon = $('.connecting.connection-icon:visible');
+        if($(icon).css('opacity') === '0') {
+            icon.fadeTo(400, 1.0);
+        } else {
+            icon.fadeTo(400, 0);
+        }
+    };
+    setInterval(fade, 1000);
 
     $(function($) {
-        self.port && self.port.on('contacts.reset', function(user) {
+        self.port.on('contacts.connecting', function() {
+            console.info('contacts.connecting');
+
+            $('.contacts .connection-icon').hide()
+                .filter('.connecting').css('display', 'inline-block');
+
+            $('.contacts .status-icon')
+                .removeClass('available unavailable busy ringing');
+        });
+
+        self.port.on('contacts.failed_to_start', function() {
+            console.info('contacts.failed_to_start');
+
+            $('.contacts .connection-icon').hide()
+                .filter('.no-connection').css('display', 'inline-block');
+        });
+
+        self.port.on('contacts.connected', function() {
+            console.info('contacts.connected');
+
+            $('.contacts .connection-icon').hide();
+        });
+
+        self.port.on('contacts.disconnected', function() {
+            console.info('contacts.disconnected');
+
+            $('.contacts .connection-icon').hide()
+                .filter('.connecting').css('display', 'inline-block');
+
+            $('.contacts .status-icon')
+                .removeClass('available unavailable busy ringing');
+        });
+
+        self.port.on('sip.state', function(account_id, state) {
+            console.info('sip.state');
+
+            $('#sip' + account_id + ' .status-icon')
+                .removeClass('available unavailable busy ringing')
+                .addClass(state);
+        });
+
+        self.port.on('contacts.reset', function() {
             var list = $('.contacts .list');
             list.empty();
             $('.widget.contacts .empty-list').addClass('hide');
 
-            if(!user) {
-                searchQuery = '';
-                phoneAccounts = [];
-                subscribedTo = {};
-            }
+            // reset search
+            searchQuery = '';
+            $('.search-form :input').val(searchQuery);
+            $('.widget.contacts .contact').removeClass('hide');
         });
 
-        self.port && self.port.on('contacts.empty', function() {
+        self.port.on('contacts.empty', function() {
             $('.widget.contacts .empty-list').removeClass('hide');
             $('.contacts .search-query').attr('disabled', 'disabled');
         });
 
         // fill the contact list
-        self.port && self.port.on('contacts.fill', function(contacts) {
+        self.port.on('contacts.fill', function(contacts, update) {
             $('.widget.contacts .empty-list').addClass('hide');
             $('.contacts .search-query').removeAttr('disabled');
-
-            if(cache.contacts.list == contacts) {
-                // no changes so exit early
-                console.info('no new contacts');
-                return;
-            }
-            // update cache
-            cache.contacts.list = contacts;
 
             // clear list
             var list = $('.contacts .list');
@@ -62,127 +99,96 @@
                 listItem.appendTo(list);
             });
 
+            // hack in popout to display bottom border
+            $('.contacts .list .contact:visible:last').addClass('last');
+
+            // receive presence data after the list is fully built
+            self.port.emit('contacts.presence', update);
+
+            // hide element
+            $('embed').hide();
+
             window.resize();
         });
 
-        // subscribe to presence updates for account_id
-        function subscribe(account_id) {
-            var presenceCallback = function(impu, state) {
-                console.info('contacts.updatePresence');
+        // various callbacks for different states - these exist for the
+        // sole purpose of passing the status to the background
+        var startingCallback = function() {
+            self.port.emit('sip.status', 'connecting');
+        };
+        var failedToStartCallback = function() {
+            self.port.emit('sip.status', 'failed_to_start');
+        };
+        var startedCallback = function() {
+            self.port.emit('sip.status', 'connected');
+        };
+        var stoppedCallback = function() {
+            self.port.emit('sip.status', 'disconnected');
+        };
+        var initializeSIPmlCallback = function() {
+            SIP.init(sipConfig);
+        };
 
-                var match = impu.match(/(.*)@/g);
-                if(match.length) {
-                    var start_pos = 0;
-                    if(match[0].indexOf('sip:') === 0) {
-                        start_pos = 4;
-                    }
-                    var selector = match[0].substring(start_pos, match[0].length-1);
-                    $('#sip' + selector).find('.status-icon')
-                        .removeClass('available unavailable busy ringing')
-                        .addClass(state);
-
-                    if(subscribedTo[account_id]) {
-                        subscribedTo[account_id]['state'] = state;  // update cached presence
-                    }
-                }
-            };
-
-            // remember subscribed accounts and its state at the time of an update
-            subscribedTo[account_id] = {
-                state: null,
-            };
-
-            var impu = 'sip:'+ account_id + '@' + window.SIPconfig['realm'];
-            window.SIP.subscribe(impu, presenceCallback);
-        }
-
-        // stop receiving presence updates for account_id
-        function unsubscribe(account_id) {
-            var impu = 'sip:'+ account_id + '@' + window.SIPconfig['realm'];
-            window.SIP.unsubscribe(impu);
-            delete subscribedTo[account_id];
-        }
-
-        // start polling for presence information
-        self.port && self.port.on('sip.init', function(email, token) {
-
-            var readyCallback = function(event) {
-                var connectedCallback = function() {
-                    $.each(cache.contacts.list, function(index, contact) {
-                        subscribe(''+contact.account_id);
-                    });
-                };
-                window.SIP.init({connected: connectedCallback});
-                window.SIP.start();
-            };
-            var errorCallback = function(event) {
-                console.error('Failed to initialize the engine: ' + event.message);
-            };
-
-            if(window.SIPml.isInitialized()) {
-                console.info('SIPml already initialized, calling readyCallback immediately');
-                readyCallback();
+        function startSubscriptions() {
+            // initialize SIPml if necessary
+            if(SIPml.isInitialized()) {
+                initializeSIPmlCallback();
             } else {
-                // update impi, pass and impu for SIP
-                window.SIPconfig['impi'] = email;
-                window.SIPconfig['pass'] = token;
-                window.SIPconfig['impu'] = 'sip:' + window.SIPconfig['impi'] + '@' + window.SIPconfig['realm'];
-
-                window.SIPml.init(readyCallback, errorCallback);
-                window.SIPml.setDebugLevel('warn');  // supported values: info, warn, error and fatal.
+                SIPml.init(
+                    initializeSIPmlCallback,
+                    function(event) {
+                        console.error('Failed to initialize the engine: ' + event.message);
+                    }
+                );
+                SIPml.setDebugLevel('warn');  // supported values: info, warn, error and fatal.
             }
+        }
 
-            // hide sip element
-            $('embed').hide();
+        function updateSubscriptions(reload, contacts) {
+            var account_ids = [];
+            $(contacts).each(function(index, contact) {
+                account_ids.push(''+contact.account_id);
+            });
+            SIP.refresh(account_ids, reload);
+        }
+
+        self.port.on('sip.start', function() {
+            startSubscriptions();
         });
 
-        self.port && self.port.on('sip.update', function() {
+        self.port.on('sip.update', function(reload, account_ids) {
             console.info('sip.update');
 
-            var cachedAccountIds = [];
-            $.each(cache.contacts.list, function(index, contact) {
-                cachedAccountIds.push(''+contact.account_id);
-            });
-
-            // subscribe to accounts previously not in the list
-            var toSubscribe = $(cachedAccountIds).not(Object.keys(subscribedTo)).get();
-            $.each(toSubscribe, function(index, account_id) {
-                subscribe(account_id);
-            });
-
-            // unsubscribe from accounts no longer in the list
-            var toUnsubscribe = $(Object.keys(subscribedTo)).not(cachedAccountIds).get();
-            $.each(toUnsubscribe, function(index, account_id) {
-                unsubscribe(account_id);
-            });
-
-            // restore state from before the update
-            $.each(Object.keys(subscribedTo), function(index, account_id) {
-                $('#sip' + account_id).find('.status-icon')
-                    .removeClass('available unavailable busy ringing')
-                    .addClass(subscribedTo[account_id]['state']);
-            });
+            updateSubscriptions(reload, account_ids);
         });
 
-        // start polling for presence information
-        self.port && self.port.on('sip.start', function() {
-            if(window.SIP) {
-                window.SIP.start();
-            }
+        self.port.on('sip.config', function(_sipConfig) {
+            console.info('sip.config');
+
+            _sipConfig['callbacks'] = {
+                starting: startingCallback,
+                failed_to_start: failedToStartCallback,
+                started: startedCallback,
+                stopped: stoppedCallback,
+            };
+            sipConfig = _sipConfig;
         });
 
-        // stop polling for presence information
-        self.port && self.port.on('sip.stop', function() {
-            if(window.SIP) {
-                window.SIP.stop();
-            }
+        self.port.on('sip.subscribe', function(account_id) {
+            SIP.subscribe(account_id);
         });
 
-        // call an available contact
-        $('.contacts').on('click', '.status-icon.available:not(.ringing)', function() {
+        self.port.on('sip.stop', function() {
+            console.info('sip.stop');
+
+            SIP.stop();
+        });
+
+        // call a contact
+        $('.contacts').on('click', '.status-icon, .name, .extension', function(e) {
             var extension = $(this).closest('.contact').find('.extension').text();
             if(extension && extension.length) {
-                self.port && self.port.emit('clicktodial.dial', extension, true);
+                self.port.emit('clicktodial.dial', extension, true);
             }
         });
 
@@ -193,6 +199,7 @@
                 searchQuery = $(this).val().trim().toLowerCase();
 
                 var list = $('.contacts .list');
+                $(list).find('.contact.last').removeClass('last');
 
                 // filter list
                 $.each($('.contacts .contact'), function(index, contact) {
@@ -206,8 +213,12 @@
 
                 // show a message if no contacts matched
                 if($('.contacts .contact:visible').length) {
+                    $('.widget.contacts .list').css('overflow-x', 'auto');
                     $('.widget.contacts .not-found-contacts').addClass('hide');
+                    // hack in popout to display bottom border
+                    $('.contacts .list .contact:visible:last').addClass('last');
                 } else {
+                    $('.widget.contacts .list').css('overflow-x', 'hidden');
                     $('.widget.contacts .not-found-contacts').removeClass('hide');
                 }
 

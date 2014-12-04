@@ -11,11 +11,11 @@
         }
     }
 
-    self.port && self.port.on('availability.refresh', function() {
+    self.port.on('availability.refresh', function() {
         refresh();
     });
 
-    self.port && self.port.on('availability.reset', function() {
+    self.port.on('availability.reset', function() {
         var list = $('[name="selecteddestination"]');
         list.empty();
 
@@ -30,7 +30,7 @@
         refresh();
     });
 
-    self.port && self.port.on('availability.fill', function(destinations) {
+    self.port.on('availability.fill', function(destinations) {
         var list = $('[name="selecteddestination"]');
         list.empty();
 
@@ -68,7 +68,7 @@
                 selectedType = value[0];
                 selectedId = value[1];
             }
-            self.port && self.port.emit('availability.toggle', selectedType, selectedId);
+            self.port.emit('availability.toggle', selectedType, selectedId);
         });
 
         /**
@@ -78,7 +78,7 @@
             var value = $(this).find('option:selected').val().split('-');
             var selectedType = value[0];
             var selectedId = value[1];
-            self.port && self.port.emit('availability.select', selectedType, selectedId);
+            self.port.emit('availability.select', selectedType, selectedId);
         });
     });
 })();

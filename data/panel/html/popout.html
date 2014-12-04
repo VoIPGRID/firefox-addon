@@ -1,23 +1,24 @@
-<!DOCTYPE html>
+<!-- having a <!DOCTYPE html> here actually breaks the flexbox -->
 <html lang="nl" class="no-scroll">
     <head>
+        <title data-l10n-content="extDescription"></title>
         <meta charset="utf-8" />
         <link href="../../assets/fonts/font-awesome.css" rel="stylesheet" />
         <link href="../../assets/lib/normalize/normalize.css" rel="stylesheet" />
         <link href="../../assets/fonts/open-sans.css" rel="stylesheet" />
         <link href="../../assets/css/main.css" rel="stylesheet" />
         <link href="../assets/css/panel.css" rel="stylesheet" />
+        <link href="../assets/css/popout.css" rel="stylesheet" />
         <!--
         <script src="../../assets/lib/jquery/jquery.js"></script>
         <script src="../../assets/lib/translate/firefox-l10n-translate.js"></script>
         <script src="../assets/js/panel.js"></script>
+        <script src="../assets/js/popout.js"></script>
         <script src="../assets/js/widgets.js"></script>
-        <script src="../../widgets/assets/js/availability.js"></script>
         <script src="../../widgets/assets/js/contacts.js"></script>
-        <script src="../../widgets/assets/js/queues.js"></script>
         -->
     </head>
-    <body class="no-select">
+    <body class="no-select expand">
         <!--
         This is a hack: the fontawesome stylesheet won't actually be loaded until an fa icon is visible somewhere.
         Without this hack there is a noticable delay in loading the stylesheet after the first fa icon is visible
@@ -37,7 +38,7 @@
         </div>
         <!-- /Login form -->
         <!-- Plugin container -->
-        <div class="container hide">
+        <div class="container static hide">
             <div class="account-info">
                 <div class="pull-right">
                     <span id="logout" data-link="logout" class="logout" data-l10n-id="logoutLinkText"></span>
@@ -46,43 +47,10 @@
                         <i id="settings" class="fa pull-right fa-cog" data-link="settings" data-l10n-title="openSettingsTitle"></i>
                         <i id="refresh" class="fa pull-right fa-refresh" data-l10n-title="refreshPanelTitle"></i>
                         <i id="help" class="fa pull-right fa-question-circle" data-link="help" data-l10n-title="openHelpTitle"></i>
-                        <i id="popout" class="fa pull-right flip-horizontal fa-external-link" data-l10n-title="popoutTitle"></i>
                     </span>
                 </div>
-                <span id="user-name" class="user-name"></span>
             </div>
-            <div class="widget availability" data-opened="false" data-widget="availability">
-                <div class="widget-header no-select">
-                    <h3 class="widget-title">
-                        <i class="fa fa-fw fa-phone-square fa-vertical-align widget-icon"></i>
-                        <i class="fa fa-fw fa-spinner fa-spin fa-vertical-align busy-icon"></i>
-                        <i class="fa fa-fw fa-triangle fa-exclamation-triangle fa-vertical-align unauthorized-icon"></i>
-                        <span data-l10n-id="availabilityWidgetTitle"></span>
-                    </h3>
-                </div>
-                <div class="widget-content hide">
-                    <form class="form form-inline">
-                        <div class="form-group availability-toggle">
-                            <label data-l10n-id="availabilityOptionsTitle"></label>
-                            <div class="radio">
-                                <label>
-                                    <input id="yes" type="radio" name="availability" class="form-control" value="yes" checked="checked" /> <span data-l10n-id="availabilityOptionYES"></span>
-                                </label>
-                            </div>
-                            <div class="radio">
-                                <label>
-                                    <input id="no" type="radio" name="availability" class="form-control" value="no" /> <span data-l10n-id="availabilityOptionNO"></span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="form-group availability-destination">
-                            <select id="statusupdate" class="form-control" name="selecteddestination" data-l10n-attrs='{"data-no-available-options-text": "noAvailabilityOptionsText"}'></select>
-                        </div>
-                    </form>
-                </div>
-                <div class="unauthorized-warning hide" data-l10n-id="availabilityUnauthorizedWarning"></div>
-            </div>
-            <div class="widget contacts" data-opened="false" data-widget="contacts">
+            <div class="widget contacts" data-opened="true" data-widget="contacts">
                 <div class="widget-header no-select">
                     <h3 class="widget-title">
                         <i class="fa fa-fw fa-group fa-vertical-align widget-icon"></i>
@@ -111,8 +79,7 @@
                             </div>
                         </li>
                     </ul>
-                    <ul class="list">
-                    </ul>
+                    <ul class="list"></ul>
                     <ul class="empty-list hide">
                         <li class="contact">
                             <div class="status-icon pull-left">
@@ -139,34 +106,6 @@
                     </ul>
                 </div>
                 <div class="unauthorized-warning hide" data-l10n-id="contactsUnauthorizedWarning"></div>
-            </div>
-            <div class="widget queues" data-opened="false" data-widget="queues">
-                <div class="widget-header no-select">
-                    <h3 class="widget-title">
-                        <i class="fa fa-fw fa-clock-o fa-vertical-align widget-icon"></i>
-                        <i class="fa fa-fw fa-spinner fa-spin fa-vertical-align busy-icon"></i>
-                        <i class="fa fa-fw fa-triangle fa-exclamation-triangle fa-vertical-align unauthorized-icon"></i>
-                        <span data-l10n-id="queuesWidgetTitle"></span>
-                    </h3>
-                </div>
-                <div class="widget-content hide">
-                    <ul class="template hide">
-                        <li class="queue">
-                            <span class="indicator">?</span>
-                            <span class="text"></span>
-                            <span class="code"></span>
-                        </li>
-                    </ul>
-                    <ul class="list">
-                    </ul>
-                    <ul class="empty-list hide">
-                        <li class="queue">
-                            <span class="indicator">?</span>
-                            <span class="text" data-l10n-id="noQueuesText"></span>
-                        </li>
-                    </ul>
-                </div>
-                <div class="unauthorized-warning hide" data-l10n-id="queuesUnauthorizedWarning"></div>
             </div>
         </div>
         <!-- /Plugin container -->

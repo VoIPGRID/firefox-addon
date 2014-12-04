@@ -97,6 +97,10 @@ input[type="search"] {
   border: 1px solid #bce8f1;
 }
 
+.flip-horizontal {
+  transform: scaleX(-1);
+}
+
 /* different cursor for clickable stuff */
 .shortcuts i,
 .logout,
@@ -111,7 +115,7 @@ input[type="search"] {
   /* don't wrap but put dots at the end if it doesn't fit */
   white-space: nowrap;
   overflow: hidden;
-  width: calc(100% - 140px);
+  width: calc(100% - 150px);
   display: inline-block;
   text-overflow: ellipsis;
 }
@@ -148,6 +152,9 @@ input[type="search"] {
 }
 .widget[data-opened="false"] .widget-title {
   background-image: url("../img/arrow-down.png");
+}
+.container.static .widget[data-opened] .widget-title {
+  background-image: none;
 }
 
 .widget .widget-header {
@@ -230,6 +237,7 @@ input[type="search"] {
 
 .widget-content li {
   list-style-type: none;
+  cursor: pointer;
 }
 
 .widget-content .empty-list li {
@@ -270,6 +278,14 @@ input[type="search"] {
 /**
  * widget: contacts
  */
+.widget.contacts.unauthorized .search-form {
+  display: none;
+}
+
+.widget.contacts .connection-icon {
+  display: none;
+}
+
 .contacts .search-form {
   display: inline-block;
   position: absolute;
@@ -333,6 +349,7 @@ input[type="search"] {
 
 .contacts .contact {
   overflow: hidden;
+  cursor: default;
 }
 
 .contacts .contact .info {
@@ -352,16 +369,15 @@ input[type="search"] {
   line-height: 43px;
 }
 
-.contacts .contact .status-icon {
-  cursor: not-allowed;
+.contacts .contact .extension,
+.contacts .contact .name {
+  display: inline-block;
 }
 
-.contacts .contact .available {
+.contacts .contact .status-icon,
+.contacts .contact .extension,
+.contacts .contact .name {
   cursor: pointer;
-}
-
-.contacts .contact .status-icon.available.ringing {
-  cursor: not-allowed;
 }
 
 /**

@@ -4,7 +4,7 @@
     // very simple cache
     window.cache = {
         'dimensions': {
-            'width': 360,
+            'width': 400,
             'height': 0,
         }
     };
@@ -16,12 +16,12 @@
                 height: height - 1,
                 width: cache.dimensions.width,
             };
-            self.port && self.port.emit('mainpanel.resize', size);
+            self.port.emit('mainpanel.resize', size);
         }
     };
     // always force a resize for this event
-    self.port && self.port.on('mainpanel.onshow', function() {
-        resize();
+    self.port.on('panel.onshow', function() {
+        window.resize();
 
         if($('.login-section').length) {
             $('.login-form :input:visible:first').focus();
@@ -42,12 +42,12 @@
             $('.login-form :input:visible').val('');
             resetButton();
 
-            // focus the first input field
-            $('.login-form :input:visible:first').focus();
         }
         function hideLoginForm() {
             $('.login-section').addClass('hide');
         }
+        // focus the first input field
+        $('.login-form :input:visible:first').focus();
 
         /**
          * Show/hide the panel's content.
@@ -98,7 +98,7 @@
         function login() {
             // login when form is not empty
             if($('#username').val().trim().length && $('#password').val().length) {
-                self.port && self.port.emit('login.attempt', $('#username').val().trim(), $('#password').val());
+                self.port.emit('login.attempt', $('#username').val().trim(), $('#password').val());
             }
         }
 
@@ -124,7 +124,7 @@
                 .prop('disabled', true)
                 .addClass('loading');
         }
-        self.port && self.port.on('login.indicator.start', function() {
+        self.port.on('login.indicator.start', function() {
             busyLoginButton();
         });
 
@@ -141,7 +141,7 @@
                 .removeClass('info')
                 .removeClass('temporary-text');
         }
-        self.port && self.port.on('login.indicator.stop', function() {
+        self.port.on('login.indicator.stop', function() {
             resetButton();
         });
 
@@ -156,7 +156,7 @@
                 .addClass('failed')
                 .addClass('temporary-text');
         }
-        self.port && self.port.on('login.failed', function() {
+        self.port.on('login.failed', function() {
             failedLoginButton();
         });
 
@@ -171,7 +171,7 @@
                 .addClass('info')
                 .addClass('temporary-text');
         }
-        self.port && self.port.on('logout', function() {
+        self.port.on('logout', function() {
             hidePanel();
             showLoginForm();
 
@@ -180,7 +180,7 @@
         });
 
         // after login, show the user's e-mail address
-        self.port && self.port.on('login.success', function(user) {
+        self.port.on('login.success', function(user) {
             $('#user-name').text(user.email);
 
             hideLoginForm();
@@ -190,10 +190,10 @@
         });
 
         // spin refresh icon while reloading widgets
-        self.port && self.port.on('mainpanel.refresh.start', function() {
+        self.port.on('panel.refresh.start', function() {
             $('#refresh').addClass('fa-spin');
         });
-        self.port && self.port.on('mainpanel.refresh.stop', function() {
+        self.port.on('panel.refresh.stop', function() {
             setTimeout(function() {
                 $('#refresh').removeClass('fa-spin');
             }, 200);
@@ -203,19 +203,22 @@
          * Capture icon clicks in the plugin container.
          */
         $('#logout').click(function(event) {
-            self.port && self.port.emit('logout.attempt');
+            self.port.emit('logout.attempt');
         });
         $('#help').click(function(event) {
-            self.port && self.port.emit('help');
+            self.port.emit('help');
+        });
+        $('#popout').click(function(event) {
+            self.port.emit('popout.show');
         });
         $('#refresh').click(function(event) {
-            self.port && self.port.emit('refresh');
+            self.port.emit('refresh');
         });
         $('#settings').click(function(event) {
-            self.port && self.port.emit('settings');
+            self.port.emit('settings');
         });
         $('#close').click(function() {
-            self.port && self.port.emit('close');
+            self.port.emit('close');
         });
     });
 })();
