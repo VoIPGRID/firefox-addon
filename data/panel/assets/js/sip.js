@@ -9,6 +9,8 @@
 
     var code,
         lastEvent,
+        options,
+        reconnect,
         sipStack,
         states,
         status,
@@ -16,85 +18,14 @@
         stopCallback;
 
     window.SIP = (function() {
-        var init = function(options) {
+        var init = function(_options) {
             console.info('SIP.init');
 
-            var eventsListener = function(e) {
-                if([
-                   // tsip_event_code_e.STACK_STOPPING,
-                   tsip_event_code_e.STACK_FAILED_TO_STOP,
-                   tsip_event_code_e.STACK_STOPPED,
-                ].indexOf(e.o_event.i_code) < 0) {
-                    lastEvent = e;
-                }
-
-                code = e.o_event.i_code;
-                status = e.type;
-                switch(code) {
-                    case tsip_event_code_e.STACK_STARTING:
-                        if(typeof options.callbacks.starting == 'function') {
-                            options.callbacks.starting();
-                        }
-                        break;
-                    case tsip_event_code_e.STACK_FAILED_TO_START:
-                        if(typeof options.callbacks.failed_to_start == 'function') {
-                            options.callbacks.failed_to_start();
-                        }
-                        break;
-                    case tsip_event_code_e.STACK_STARTED:
-                        if(typeof options.callbacks.started == 'function') {
-                            options.callbacks.started();
-                        }
-                        break;
-                    case tsip_event_code_e.STACK_STOPPED:
-                        if(lastEvent) {
-                            if(lastEvent.o_event.o_stack.network.o_transport.stop) {
-                                lastEvent.o_event.o_stack.network.o_transport.stop();
-                            }
-                            lastEvent = undefined;
-                        }
-
-                        if(typeof options.callbacks.stopped == 'function') {
-                            options.callbacks.stopped();
-                        }
-
-                        // internal callback, used to start right after STACK_STOPPED
-                        if(stopCallback) {
-                            sipStack = undefined;
-                            stopCallback();
-                            stopCallback = undefined;
-                        }
-                        break;
-                }
-            };
-
-            // init and start a new stack
-            var startStack = function() {
-                // create sipStack
-                sipStack = new SIPml.Stack({
-                    realm: options.realm, // mandatory: domain name
-                    impi: options.impi, // mandatory: authorization name (IMS Private Identity)
-                    impu: options.impu, // mandatory: valid SIP Uri (IMS Public Identity)
-                    password: options.password, // optional
-                    display_name: options.display_name, // optional
-                    websocket_proxy_url: options.websocket_proxy_url, // optional
-                    // outbound_proxy_url: 'udp://example.org:5060', // optional
-                    enable_rtcweb_breaker: false, // optiona
-                    events_listener: { events: '*', listener: eventsListener }, // optional: '*' means all events
-                    sip_headers: [ // optional
-                            { name: 'User-Agent', value: 'Firefox add-on/SIPml5' },
-                            { name: 'Organization', value: 'VoIPGRID' }
-                        ]
-                });
-                start();
-            };
+            options = _options;
 
             // run startStack after stop or right away
             if(sipStack) {
-                // if status is not STARTED, the STOPPED event will never be send
-                if(code && (code == tsip_event_code_e.STACK_STARTED || code == tsip_event_code_e.STACK_STARTING)) {
-                    stopCallback = startStack;
-                }
+                reconnect = true;
                 stop();
             }
             if(!stopCallback) {
@@ -102,10 +33,84 @@
             }
         };
 
+        var eventsListener = function(e) {
+            if([
+               // tsip_event_code_e.STACK_STOPPING,
+               tsip_event_code_e.STACK_FAILED_TO_STOP,
+               tsip_event_code_e.STACK_STOPPED,
+            ].indexOf(e.o_event.i_code) < 0) {
+                lastEvent = e;
+            }
+
+            code = e.o_event.i_code;
+            status = e.type;
+            switch(code) {
+                case tsip_event_code_e.STACK_STARTING:
+                    if(typeof options.callbacks.starting == 'function') {
+                        options.callbacks.starting();
+                    }
+                    break;
+                case tsip_event_code_e.STACK_FAILED_TO_START:
+                    if(typeof options.callbacks.failed_to_start == 'function') {
+                        options.callbacks.failed_to_start(reconnect);
+                    }
+
+                    if(reconnect) {
+                        sipStack = undefined;
+                    }
+                    break;
+                case tsip_event_code_e.STACK_STARTED:
+                    if(typeof options.callbacks.started == 'function') {
+                        options.callbacks.started();
+                    }
+                    break;
+                case tsip_event_code_e.STACK_STOPPED:
+                    if(lastEvent) {
+                        if(lastEvent.o_event.o_stack.network.o_transport.stop) {
+                            lastEvent.o_event.o_stack.network.o_transport.stop();
+                        }
+                        lastEvent = undefined;
+                    }
+
+                    if(typeof options.callbacks.stopped == 'function') {
+                        options.callbacks.stopped(reconnect);
+                    }
+
+                    if(reconnect) {
+                        sipStack = undefined;
+                    }
+                    break;
+            }
+        };
+
+        // init and start a new stack
+        var startStack = function() {
+            // create sipStack
+            sipStack = new SIPml.Stack({
+                realm: options.realm, // mandatory: domain name
+                impi: options.impi, // mandatory: authorization name (IMS Private Identity)
+                impu: options.impu, // mandatory: valid SIP Uri (IMS Public Identity)
+                password: options.password, // optional
+                display_name: options.display_name, // optional
+                websocket_proxy_url: options.websocket_proxy_url, // optional
+                // outbound_proxy_url: 'udp://example.org:5060', // optional
+                enable_rtcweb_breaker: false, // optiona
+                events_listener: { events: '*', listener: eventsListener }, // optional: '*' means all events
+                sip_headers: [ // optional
+                        { name: 'User-Agent', value: 'Firefox add-on/SIPml5' },
+                        { name: 'Organization', value: 'VoIPGRID' }
+                    ]
+            });
+            start();
+        };
+
         var start = function() {
             console.info('SIP.start');
 
-            if((!code || code != tsip_event_code_e.STACK_STARTED || code != tsip_event_code_e.STACK_STARTING) && sipStack) {
+            // graceful start, reconnect automatically when necessary
+            reconnect = true;
+
+            if((!code || code != tsip_event_code_e.STACK_STARTED || code != tsip_event_code_e.STACK_STARTING) && sipStack && sipStack.o_stack.e_state != tsip_transport_state_e.STARTED) {
                 subscriptions = {};
                 states = {};
                 sipStack.start();
@@ -116,6 +121,9 @@
 
         var stop = function() {
             console.info('SIP.stop');
+
+            // graceful stop, do not reconnect automatically
+            reconnect = false;
 
             // unsubscribe from all
             if(subscriptions) {
@@ -131,10 +139,13 @@
         };
 
         var subscribe = function(to) {
-            if(code == tsip_event_code_e.STACK_STARTED && subscriptions && sipStack) {
+            if(subscriptions && sipStack) {
+                if(sipStack.o_stack.e_state != tsip_transport_state_e.STARTED) {
+                    start();
+                }
+
                 if(subscriptions.hasOwnProperty(to)) {
                     console.info('SIP.subscribe (skip)');
-                    // console.info('SIP already subscribed to ', to);
                 } else {
                     console.info('SIP.subscribe');
 
@@ -142,7 +153,14 @@
                     subscriptions[to] = subscribeSession;  // keep reference to prevent subscribing multiple times
 
                     var eventsListener = function(e){
-                        if(e.getContentType() == 'application/dialog-info+xml') {
+                        if(e.o_event.i_code == tsip_event_code_e.DIALOG_TERMINATED) {
+                            // communication terminated, assume this is unwanted!
+                            if(sipStack) {
+                                // send 'official' stop signal to the stack's signal event listener
+                                sipStack.stop();
+                            }
+                        // } else if(e.o_event.e_type == 20) {
+                        } else if(e.getContentType() == 'application/dialog-info+xml') {
                             console.info('session event = ' + e.type);
                             if(window.DOMParser) {
                                 var parser = new DOMParser();
@@ -218,7 +236,7 @@
             console.info('SIP.unsubscribe');
 
             if(subscriptions.hasOwnProperty(from)) {
-                if(code == tsip_event_code_e.STACK_STARTED) {
+                if(sipStack && sipStack.o_stack.e_state == tsip_transport_state_e.STARTED) {
                     subscriptions[from].unsubscribe();
                 }
                 delete subscriptions[from];

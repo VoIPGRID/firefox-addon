@@ -116,14 +116,14 @@
         var startingCallback = function() {
             self.port.emit('sip.status', 'connecting');
         };
-        var failedToStartCallback = function() {
-            self.port.emit('sip.status', 'failed_to_start');
+        var failedToStartCallback = function(reconnect) {
+            self.port.emit('sip.status', 'failed_to_start', reconnect);
         };
         var startedCallback = function() {
             self.port.emit('sip.status', 'connected');
         };
-        var stoppedCallback = function() {
-            self.port.emit('sip.status', 'disconnected');
+        var stoppedCallback = function(reconnect) {
+            self.port.emit('sip.status', 'disconnected', reconnect);
         };
         var initializeSIPmlCallback = function() {
             SIP.init(sipConfig);
