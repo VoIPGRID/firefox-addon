@@ -15,7 +15,31 @@
         states,
         status,
         subscriptions,
-        stopCallback;
+        stopCallback,
+        versions = {
+            'addon': '',
+            'sipml5': '',
+        };
+
+    /**
+     * Return the current version of this addon.
+     */
+    function _getAddonVersion() {
+        return versions['addon'];
+    }
+    self.port.on('versions.addon', function(version) {
+        versions['addon'] = version;
+    });
+
+    /**
+     * Return the current version of SIPml.
+     */
+    function _getSIPmlVersion() {
+        return versions['sipml5'];
+    }
+    self.port.on('versions.sipml5', function(version) {
+        versions['sipml5'] = version;
+    });
 
     window.SIP = (function() {
         var init = function(_options) {
@@ -85,6 +109,8 @@
 
         // init and start a new stack
         var startStack = function() {
+            var userAgent = 'Firefox addon v' + _getAddonVersion() + ' w/ sipML5 v' + _getSIPmlVersion();
+
             // create sipStack
             sipStack = new SIPml.Stack({
                 realm: options.realm, // mandatory: domain name
@@ -97,7 +123,7 @@
                 enable_rtcweb_breaker: false, // optiona
                 events_listener: { events: '*', listener: eventsListener }, // optional: '*' means all events
                 sip_headers: [ // optional
-                        { name: 'User-Agent', value: 'Firefox add-on/SIPml5' },
+                        { name: 'User-Agent', value: userAgent},
                         { name: 'Organization', value: 'VoIPGRID' }
                     ]
             });
@@ -210,7 +236,7 @@
                     };
                     var subscribePresence = function(to) {
                         subscribeSession = sipStack.newSession('subscribe', {
-                                expires: 200,
+                                expires: 3600,
                                 events_listener: { events: '*', listener: eventsListener },
                                 sip_headers: [
                                         { name: 'Event', value: 'dialog' },  // only notify for 'dialog' events
