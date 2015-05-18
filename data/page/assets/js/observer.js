@@ -105,7 +105,7 @@
         event.stopImmediatePropagation();
 
         // dial
-        var b_number = $($('[href^="tel:"]')[0]).attr('href').substring(4);
+        var b_number = $(this).attr('href').substring(4);
         self.port.emit('clicktodial.dial', b_number);
     });
 
