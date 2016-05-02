@@ -431,3 +431,9 @@ input[type="search"] {
 .queues .empty-list .queue .text {
   margin-left: 30px;
 }
+
+.queues .list {
+  /* show a scrollbar after +/- 5 contacts */
+  max-height: 210px;
+  overflow: auto;
+}
