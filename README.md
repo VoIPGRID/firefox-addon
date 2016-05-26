@@ -20,11 +20,10 @@ If you want to know to contribute, please see [Contribute](#contribute).
 Contribute
 ----------
 
-Fork our repository to start contributing. Next, make sure you've followed the instructions at [developer.mozilla.org](https://developer.mozilla.org/en-US/Add-ons/SDK/Tutorials/Installation) to install and activate the Firefox add-on SDK.
-This should get you started right away. To run the add-on in your local firefox, run:
+Fork our repository to start contributing. To run the add-on in your local firefox, run:
 
 ```
-$ cfx run
+$ jpm run
 ```
 
 This will open a Firefox window running the add-on from source.
@@ -32,10 +31,8 @@ This will open a Firefox window running the add-on from source.
 When you've finished developing a new feature you can package the add-on, ready to upload it to Mozilla, with:
 
 ```
-$ ./cfx_xpi_locale.sh
+jpm xpi
 ```
-
-This will run `cfx xpi` to package the add-on and deal with bug [#661083](https://bugzilla.mozilla.org/show_bug.cgi?id=661083).
 
 When you have everything you want to add or change in your own github repository you can create a pull-request to request merging your changes into our add-on.
 
