@@ -24,7 +24,7 @@
         var iconStyle = {
             // 'background-attachment': 'scroll',  // this is set later, conditionally
             'background-color': 'transparent !important',
-            'background-image': 'url("resource://voipgrid-at-jetpack/voipgrid/data/clicktodial/assets/img/clicktodial.png")',
+            'background-image': 'url("resource://voipgrid-at-jetpack/data/clicktodial/assets/img/clicktodial.png")',
             'background-repeat': 'no-repeat',
             'bottom': '-3px !important',
             'background-position': 'center center',
