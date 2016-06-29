@@ -69,37 +69,89 @@
         return allowed;
     })();
 
+    var blockedRoles = (function() {
+        // role list based on:
+        // http://www.w3.org/TR/wai-aria/roles#landmark_roles
+        var roles = [
+            'button',
+            'checkbox',
+            'command',
+            'input',
+            'radio',
+            'range',
+            'slider',
+            'option',
+            'search',
+            'textbox',
+            'timer',
+        ];
+
+        var disallowed = {};
+        for(var i = 0; i < roles.length; i++) {
+            disallowed[roles[i]] = null;
+        }
+
+        return disallowed;
+    })();
+
     /**
-     * Test if `node` should even be processed.
+     * Skip elements which *probably* wouldn't (or shouldn't) contain a phone number.
      */
-    window.skipNode = function(node) {
-        // nodetype 1 == HTML element
-        if(node.nodeType == 1) {
-            // skip some elements which normally wouldn't contain a phone number
-            if(node.tagName in blockedTagNames) {
+    function isBlockedElement(element) {
+        if(element.tagName in blockedTagNames) {
+            return true;
+        }
+
+        // check for attributes on *element*
+        if($(element).is('[contenteditable="true"]') ||
+                $(element).is('[aria-labelledby]') ||
+                ($(element).is('[role]') && $(element).attr('role').toLowerCase() in blockedRoles)) {
+            return true;
+        } else {
+            // check for attributes on *parents*
+            var closest_role_element = $(element).closest('[role]');
+            if(!!$(element).closest('[contenteditable="true"]').length ||
+                    !!$(element).closest('[aria-labelledby]').length ||
+                    (!!closest_role_element.length && $(closest_role_element[0]).attr('role').toLowerCase() in blockedRoles)) {
                 return true;
             }
         }
 
-        // nodetype 1 == HTML element
-        if(node.nodeType == 3) {
-            var parentElement = node.parentElement;
+        return false;
+    }
 
-            if(parentElement) {
-                // skip invisible elements,
-                // Sizzle: an element is invisible when it has no height or width
-                if(!(parentElement.offsetWidth > 0 || parentElement.offsetHeight > 0)) {
-                    return true;
-                }
+    /**
+     * Test if `node` should even be processed.
+     */
+    window.skipNode = function(node) {
+        // only parse element and text nodes
+        if(node.nodeType !== Node.ELEMENT_NODE && node.nodeType !== Node.TEXT_NODE) {
+            return true;
+        }
 
-                // skip existing numbers with an icon
-                if($(parentElement).hasClass(phoneElementClassName)) {
-                    return true;
-                }
+        if(node.nodeType == Node.ELEMENT_NODE && isBlockedElement(node)) {
+            return true;
+        }
+
+        // skip empty nodes
+        if(node.nodeType == Node.TEXT_NODE && node.data.trim().length === 0) {
+            return true;
+        }
+
+        var parentElement = node.parentElement;
+        if(parentElement) {
+            // skip invisible elements,
+            // Sizzle: an element is invisible when it has no height or width
+            if(!(parentElement.offsetWidth > 0 || parentElement.offsetHeight > 0)) {
+                return true;
             }
 
-            // skip empty nodes
-            if(node.data.trim().length === 0) {
+            // skip existing numbers with an icon
+            if($(parentElement).hasClass(phoneElementClassName)) {
+                return true;
+            }
+
+            if(isBlockedElement(parentElement)) {
                 return true;
             }
         }
@@ -110,20 +162,30 @@
     /**
      * Walk the DOM and apply fn for every node.
      */
-    window.walkTheDOM = function (node, fn) {
-        if(node) do {
-            if(skipNode(node)) {
-                continue;
-            }
+    window.walkTheDOM = function (root, fn) {
+        // skip element nodes, we'll get to those using a text node's parentNode attr
+        var whatToShow = NodeFilter.SHOW_TEXT;
 
-            // in case fn replaces node, skip it
-            var returnNode = fn(node);
-            if(returnNode != node) {
-                node = returnNode;
-                continue;
+        // apply filtering on what nodes to process
+        var filter = {
+            acceptNode: function(node) {
+                if(skipNode(node)) {
+                    return NodeFilter.FILTER_SKIP;
+                } else {
+                    return NodeFilter.FILTER_ACCEPT;
+                }
             }
+        }
 
-            walkTheDOM(node.firstChild, fn);
-        } while((node = node.nextSibling));
+        var nodeIterator = document.createNodeIterator(
+            root,
+            whatToShow,
+            filter
+        );
+
+        var curNode;
+        while(curNode = nodeIterator.nextNode()) {
+            fn(curNode);
+        }
     };
 })();
