@@ -2,7 +2,7 @@
     "id": "voipgrid@jetpack",
     "name": "voipgrid",
     "main": "./lib/main.js",
-    "version": "1.6.7",
+    "version": "1.6.8",
     "author": "VoIPGRID",
     "license": "MPL 1.1/GPL 2.0/LGPL 2.1",
     "fullName": "VoIPGRID",
@@ -16,7 +16,7 @@
         },
         "nl-NL": {
             "title": "VoIPGRID",
-            "description": "Firefox plugin voor klik&amp;bel, statusupdate en wachtrij monitoring."
+            "description": "Firefox plugin voor klik&bel, statusupdate en wachtrij monitoring."
         }
     },
 
